@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "67b377b44535843f0525d72394bf0d29",
+    "revision": "5409f879836ca508fe84869309ad29d7",
     "url": "/renzomledesma/index.html"
   },
   {
-    "revision": "feba396809374264df7f",
+    "revision": "4f5ea899fba58f2a83af",
     "url": "/renzomledesma/static/css/main.5f361e03.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/renzomledesma/static/js/2.dd254eac.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "feba396809374264df7f",
-    "url": "/renzomledesma/static/js/main.e5eeb2a9.chunk.js"
+    "revision": "4f5ea899fba58f2a83af",
+    "url": "/renzomledesma/static/js/main.e78c1791.chunk.js"
   },
   {
     "revision": "df7df30601898ed290c7",
