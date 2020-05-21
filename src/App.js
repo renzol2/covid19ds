@@ -1,26 +1,51 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 
-function App() {
+const MediaCard = ({title, body, imageUrl}) => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          I wonder if this works.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h2>{title}</h2>
+      <p>{body}</p>
+      <img src={imageUrl} alt="test" />
     </div>
   );
 }
 
-export default App;
+const Hi = ({firstName, lastName}) => {
+  return (
+    <div className="Main">
+      <h1>This is a test.</h1>
+      <h2>I don't remember HTML tags lmao</h2>
+      <p>Saying hello to {firstName} {lastName}.</p>
+    </div>
+  );
+}
+
+const Gate = ({isOpen}) => {
+  const display = isOpen ? 'open' : 'closed';
+  return (
+    <p>{display}</p>
+  )
+}
+
+const paragraph = 'this is my paragraph :)';
+const bodyText = 'this is the body text! uwu';
+
+const Everything = () => {
+  return (
+    <>
+      <MediaCard
+        title={paragraph}
+        body={<strong>{bodyText}</strong>}
+        imageUrl="https://m.media-amazon.com/images/I/4141ztFVb3L._SS500_.jpg"
+      />
+      <Hi
+        firstName="hi"
+        lastName="bye"
+      />
+      <Gate isOpen={true} />
+    </>
+  )
+}
+
+export default Everything;
