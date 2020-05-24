@@ -1,52 +1,26 @@
 import React, {useState} from 'react';
 import './App.css';
-import * as Tone from 'tone';
-import axios from 'axios';
 
-const subreddit = 'r/uiuc';
+import fetchData from './data/fetchData';
 
-const playTone = () => {
-  const synth = new Tone.Synth().toMaster();
-  synth.triggerAttackRelease('C4', '8n');
-}
-
-const Reddit = () => {
-  const [posts, setPosts] = useState([]);
-
-  // API call using axios
-  React.useEffect(() => {
-    axios.get(`https://www.reddit.com/${subreddit}.json`)
-      .then(res => {
-        const newPosts = res.data.data.children
-          .map(obj => obj.data);
-
-        setPosts(newPosts);
-      });
-  }, []);
-
+const HeaderList = ({data}) => {
+  console.log(data);
   return (
-    <div>
-      <h1>{subreddit}</h1>
-
-      <ul>
-        {posts.map(post => (
-          <li key={post.id}>
-            {post.subreddit_name_prefixed}: 
-            <i> {post.author} </i> 
-            <strong> {post.score} </strong>
-            <a href={post.url}>{post.title}</a>
-          </li>
-        ))}
-      </ul>
-
-    </div>
-  );
+    <ul>
+      {data.map(item => (
+        <li>{item}</li>
+      ))}
+    </ul>
+  )
 }
 
 const App = () => {
+  const [data, setData] = useState([]);
+
   return (
     <div>
-      <Reddit />
+      <button onClick={() => setData(fetchData)}>run</button>
+      <HeaderList data={data} />
     </div>
   )
 }
