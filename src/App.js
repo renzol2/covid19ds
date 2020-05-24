@@ -3,24 +3,19 @@ import './App.css';
 
 import fetchData from './data/fetchData';
 
-const HeaderList = ({data}) => {
-  console.log(data);
-  return (
-    <ul>
-      {data.map(item => (
-        <li>{item}</li>
-      ))}
-    </ul>
-  )
-}
-
 const App = () => {
   const [data, setData] = useState([]);
+  const amount = 5;
+  let key = 0;
+  
+  React.useEffect(() => {setData(fetchData(amount))}, []);
 
   return (
     <div>
-      <button onClick={() => setData(fetchData)}>run</button>
-      <HeaderList data={data} />
+      <h1>test</h1>
+      <ul>
+        
+      </ul>
     </div>
   )
 }
