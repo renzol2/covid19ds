@@ -1,7 +1,13 @@
 import React, {useState} from 'react';
 import './App.css';
+import * as Tone from 'tone';
 
 import fetchData from './data/fetchData';
+
+const playTone = midiPitch => {
+  var synth = new Tone.Synth().toMaster();
+  synth.triggerAttackRelease(Tone.Frequency(midiPitch, 'midi'), '8n');
+}
 
 const App = () => {
   const [data, setData] = useState([]);
@@ -15,7 +21,7 @@ const App = () => {
       <h1>test</h1>
 
       {/* covid19 data stuff */}
-      <ul>
+      {/* <ul>
         {data.map(row => {
           let rowString = '';
           for (let value in row) {
@@ -23,9 +29,10 @@ const App = () => {
           }
           return <li key={key++} >{rowString}</li>
         })}
-      </ul>
+      </ul> */}
 
       { /* tone js stuff */}
+      <button onClick={() =>playTone(60)}>play</button>
     </div>
   )
 }
