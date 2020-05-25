@@ -14,7 +14,13 @@ const App = () => {
     <div>
       <h1>test</h1>
       <ul>
-        
+        {data.map(row => {
+          let rowString = '';
+          for (let value in row) {
+            rowString += value;
+          }
+          return <li key={key++} >{rowString}</li>
+        })}
       </ul>
     </div>
   )
