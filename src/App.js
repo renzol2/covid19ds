@@ -13,6 +13,8 @@ const App = () => {
   return (
     <div>
       <h1>test</h1>
+
+      {/* covid19 data stuff */}
       <ul>
         {data.map(row => {
           let rowString = '';
@@ -22,6 +24,8 @@ const App = () => {
           return <li key={key++} >{rowString}</li>
         })}
       </ul>
+
+      { /* tone js stuff */}
     </div>
   )
 }
