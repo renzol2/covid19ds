@@ -10,7 +10,9 @@ const playTone = midiPitch => {
 }
 
 const App = () => {
+  const defaultPitch = 60;
   const [data, setData] = useState([]);
+  const [pitch, setPitch] = useState(defaultPitch);
   const amount = 5;
   let key = 0;
   
@@ -32,7 +34,11 @@ const App = () => {
       </ul> */}
 
       { /* tone js stuff */}
-      <button onClick={() =>playTone(60)}>play</button>
+      <p>The current MIDI pitch is {pitch}</p>
+      <button onClick={() =>playTone(pitch)}>play</button>
+      <br />
+      <button onClick={() =>setPitch(pitch + 1)}>Increase pitch</button>
+      <button onClick={() =>setPitch(pitch - 1)}>Decrease pitch</button>
     </div>
   )
 }
