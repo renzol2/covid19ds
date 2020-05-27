@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import './App.css';
 import * as Tone from 'tone';
 
-import fetchData from './data/fetchData';
+import FetchOwidData from './data/fetchData';
 
 const playTone = (midiPitch, oscType) => {
   const options = {oscillator: {
@@ -21,30 +21,36 @@ const App = () => {
     'square',
     'sawtooth',
   ];
+  const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
+  const amount = 5;
 
-  const [data, setData] = useState([]);
+  const [{ data, isLoading, isError }, fetchData] = 
+    FetchOwidData(url, amount);
   const [pitch, setPitch] = useState(defaultPitch);
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
 
-  const amount = 5;
-  let key = 0;
   
-  React.useEffect(() => {setData(fetchData(amount))}, []);
+  
+  // React.useEffect(() => {
+  //   const fetchedData = fetchOwidData(amount);
+  //   console.log(fetchedData);
+  //   setData(fetchedData);
+  // }, []);
 
   return (
     <div>
       <h1>test</h1>
 
       {/* covid19 data stuff */}
-      {/* <ul>
-        {data.map(row => {
-          let rowString = '';
-          for (let value in row) {
-            rowString += value;
-          }
-          return <li key={key++} >{rowString}</li>
-        })}
-      </ul> */}
+      <h1>
+        {data !== undefined ? data.length : null}
+      </h1>
+      <h2>
+        {isLoading ? 'loading' : null}
+        {isError ? 'error' : null}
+      </h2>
+
+      <button onClick={() => fetchData(url)}>fetch</button>
 
       { /* tone js stuff */}
       <p>The current MIDI pitch is: {pitch}</p>
