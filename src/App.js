@@ -54,9 +54,11 @@ const App = () => {
       <p>The current oscillator is: {oscTypes[oscSelection]}</p>
       <button onClick={() =>playTone(pitch, oscTypes[oscSelection])}>play</button>
       <br />
+
       <button onClick={() => setPitch(pitch + 1)}>Increase pitch</button>
       <button onClick={() => setPitch(pitch - 1)}>Decrease pitch</button>
       <br />
+      
       <button onClick={
           () => setOscSelection((oscSelection + 1) % oscTypes.length)
         }>
