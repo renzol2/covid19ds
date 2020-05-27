@@ -23,12 +23,12 @@ const App = () => {
     'sawtooth',
   ];
   const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
-  const amount = 5;
+  const amount = 10;
   let key = 0;
 
   const [{ data, regions, isLoading, isError }, fetchData] = 
     FetchOwidData(url, amount);
-  const [region, setRegion] = useState(regions[0]);
+  const [region, setRegion] = useState('');
   const [pitch, setPitch] = useState(defaultPitch);
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
 
@@ -51,7 +51,8 @@ const App = () => {
         {
           data.map(line => (
             <li key={key++} >
-              {`${line['date']}: ${line[region]}`}
+              {`${line['date']}:
+                ${line[region] === undefined ? '' : line[region]}`}
             </li>
           ))
         }
