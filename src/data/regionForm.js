@@ -15,7 +15,7 @@ class RegionForm extends Component {
   }
 
   sendRegionToParent = () => {
-    console.log(this.state.region);
+    //console.log(this.state.region);
     this.props.callback(this.state.region);
   }
 
