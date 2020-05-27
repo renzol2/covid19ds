@@ -28,7 +28,7 @@ const App = () => {
 
   const [{ data, regions, isLoading, isError }, fetchData] = 
     FetchOwidData(url, amount);
-  const [region, setRegion] = useState('');
+  const [region, setRegion] = useState(regions[0]);
   const [pitch, setPitch] = useState(defaultPitch);
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
 

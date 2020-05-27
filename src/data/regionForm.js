@@ -4,19 +4,21 @@ class RegionForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      region: props.regions[0],
+      region: 'World',
     };
 
     this.handleChange = this.handleChange.bind(this);
+    this.getRegionInfo();
   }
    
   handleChange(event) {
     this.setState({region: event.target.value});
+    this.getRegionInfo();
   }
 
   getRegionInfo = () => {
-    console.log(this.region);
-    this.props.callback(this.region);
+    console.log(this.state.region);
+    this.props.callback(this.state.region);
   }
 
   render() {
