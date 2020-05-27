@@ -23,36 +23,33 @@ const App = () => {
   ];
   const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
   const amount = 5;
+  let key = 0;
 
   const [{ data, isLoading, isError }, fetchData] = 
     FetchOwidData(url, amount);
   const [pitch, setPitch] = useState(defaultPitch);
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
 
-  
-  
-  // React.useEffect(() => {
-  //   const fetchedData = fetchOwidData(amount);
-  //   console.log(fetchedData);
-  //   setData(fetchedData);
-  // }, []);
-
   return (
     <div>
-      <h1>test</h1>
+      <h1>COVID-19 Data Sonification</h1>
 
       {/* covid19 data stuff */}
-      <h1>
-        {data !== undefined ? data.length : null}
-      </h1>
-      <h2>
-        {isLoading ? 'loading' : null}
-        {isError ? 'error' : null}
-      </h2>
+      <h3>Display data:</h3>
+      <p>{isLoading ? 'Loading data...' : null}</p>
+      <p>{isError ? 'An error occurred.' : null}</p>
 
-      <button onClick={() => fetchData(url)}>fetch</button>
+      <ul>
+        {
+          data.map(line => (
+            <li key={key++} >{line[0]}</li>
+          ))
+        }
+      </ul>
+      
 
       { /* tone js stuff */}
+      <h3>Options:</h3>
       <p>The current MIDI pitch is: {pitch}</p>
       <p>The current oscillator is: {oscTypes[oscSelection]}</p>
       <button onClick={() =>playTone(pitch, oscTypes[oscSelection])}>play</button>
