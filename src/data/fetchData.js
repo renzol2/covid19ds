@@ -10,6 +10,7 @@ import Papa from 'papaparse';
 const FetchOwidData = (initUrl, amount) => {
   const [url, setUrl] = useState(initUrl);
   const [data, setData] = useState([]);
+  const [regions, setRegions] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
 
@@ -22,15 +23,21 @@ const FetchOwidData = (initUrl, amount) => {
         Papa.parse(url, {
           download: true,
           preview: amount,
+          header: true,  // uses the header to convert CSV into JSON
           
           // Callback function called once PapaParser finishes parsing
           complete: (results) => {
             if (results.errors.length > 0) {
               results.errors.map(error => (console.log(error)));
             }
-
-            console.log(results.data);
+            
+            //console.log(results.data);
             setData(results.data);
+
+            let regionsList = Object.keys(results.data[0]);
+            regionsList.shift();  // removes the first element 'date'
+            //console.log(regionsList);
+            setRegions(regionsList);
           }
         })
       } catch (error) {
@@ -47,7 +54,7 @@ const FetchOwidData = (initUrl, amount) => {
   }, [url, amount]);
   
   // Returned as state
-  return [{ data, isLoading, isError }, setUrl];
+  return [{ data, regions, isLoading, isError }, setUrl];
 }
 
 export default FetchOwidData;

@@ -3,6 +3,7 @@ import './App.css';
 import * as Tone from 'tone';
 
 import FetchOwidData from './data/fetchData';
+import RegionForm from './data/regionForm';
 
 const playTone = (midiPitch, oscType) => {
   const options = {oscillator: {
@@ -25,10 +26,15 @@ const App = () => {
   const amount = 5;
   let key = 0;
 
-  const [{ data, isLoading, isError }, fetchData] = 
+  const [{ data, regions, isLoading, isError }, fetchData] = 
     FetchOwidData(url, amount);
+  const [region, setRegion] = useState('');
   const [pitch, setPitch] = useState(defaultPitch);
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
+
+  let getRegion = (selectedRegion) => {
+    setRegion(selectedRegion);
+  };
 
   return (
     <div>
@@ -38,11 +44,15 @@ const App = () => {
       <h3>Display data:</h3>
       <p>{isLoading ? 'Loading data...' : null}</p>
       <p>{isError ? 'An error occurred.' : null}</p>
+      
+      <RegionForm regions={regions} callback={getRegion} /> 
 
       <ul>
         {
           data.map(line => (
-            <li key={key++} >{line[0]}</li>
+            <li key={key++} >
+              {`${line['date']}: ${line[region]}`}
+            </li>
           ))
         }
       </ul>
