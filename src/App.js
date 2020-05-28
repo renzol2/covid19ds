@@ -37,7 +37,7 @@ const App = () => {
   };
 
   return (
-    <div>
+    <div className='body'>
       <h1>COVID-19 Data Sonification</h1>
 
       {/* covid19 data stuff */}
@@ -52,7 +52,9 @@ const App = () => {
           data.map(line => (
             <li key={key++} >
               {`${line['date']}:
-                ${line[region] === undefined ? '' : line[region]}`}
+                ${line[region] === undefined || line[region].length === 0 
+                  ? 'No data' 
+                  : line[region]}`}
             </li>
           ))
         }
