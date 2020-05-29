@@ -27,13 +27,14 @@ const App = () => {
     'sawtooth',
   ];
   const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
-  const amount = 10;
+  const amount = 75;
   let key = 0;
 
   // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = 
     FetchOwidData(url, amount);
   const [region, setRegion] = useState('');
+  const [regionData, setRegionData] = useState([]);
 
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
@@ -44,6 +45,8 @@ const App = () => {
   // Callback function for getting selected region from region form
   let getRegion = (selectedRegion) => {
     setRegion(selectedRegion);
+
+    
   };
 
   let handleMinMidiChange = event => {
@@ -69,7 +72,7 @@ const App = () => {
         {
           data.map(line => (
             <li key={key++} >
-              {line['date']}: <strong>{line[region]}</strong> cases (pitch: {})
+              {line['date']}: {<strong>{line[region]}</strong>} cases (pitch: {})
             </li>
           ))
         }
