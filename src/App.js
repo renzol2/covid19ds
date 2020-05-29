@@ -26,12 +26,18 @@ const App = () => {
   const amount = 10;
   let key = 0;
 
+  // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = 
     FetchOwidData(url, amount);
   const [region, setRegion] = useState('');
+
+  // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
+  const [minMidiPitch, setMinMidiPitch] = useState(0);
+  const [maxMidipitch, setMaxMidiPitch] = useState(127);
 
+  // Callback function for getting selected region from region form
   let getRegion = (selectedRegion) => {
     setRegion(selectedRegion);
   };
@@ -77,6 +83,13 @@ const App = () => {
         }>
           Toggle oscillator
       </button>
+      <br />
+
+      <label>
+        Set minimum MIDI pitch:
+        <input type='text'></input>
+      </label>
+
     </div>
   )
 }
