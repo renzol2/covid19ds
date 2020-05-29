@@ -2,7 +2,11 @@ import React, {useState} from 'react';
 import './App.css';
 import * as Tone from 'tone';
 
+// Functions
 import FetchOwidData from './data/fetchData';
+import mapData from './util/mapData';
+
+// Components
 import RegionForm from './data/regionForm';
 
 const playTone = (midiPitch, oscType) => {
@@ -35,12 +39,20 @@ const App = () => {
   const [pitch, setPitch] = useState(defaultPitch);
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
   const [minMidiPitch, setMinMidiPitch] = useState(0);
-  const [maxMidipitch, setMaxMidiPitch] = useState(127);
+  const [maxMidiPitch, setMaxMidiPitch] = useState(127);
 
   // Callback function for getting selected region from region form
   let getRegion = (selectedRegion) => {
     setRegion(selectedRegion);
   };
+
+  let handleMinMidiChange = event => {
+    setMinMidiPitch(event.target.value);
+  }
+
+  let handleMaxMidiChange = event => {
+    setMaxMidiPitch(event.target.value);
+  }
 
   return (
     <div className='body'>
@@ -57,10 +69,7 @@ const App = () => {
         {
           data.map(line => (
             <li key={key++} >
-              {`${line['date']}:
-                ${line[region] === undefined || line[region].length === 0 
-                  ? 'No data' 
-                  : line[region]}`}
+              {line['date']}: <strong>{line[region]}</strong> cases (pitch: {})
             </li>
           ))
         }
@@ -84,10 +93,16 @@ const App = () => {
           Toggle oscillator
       </button>
       <br />
-
+      
+      <p>Min/max MIDI pitch: [{minMidiPitch}, {maxMidiPitch}]</p>
       <label>
         Set minimum MIDI pitch:
-        <input type='text'></input>
+        <input type='text' value={minMidiPitch} onChange={handleMinMidiChange}></input>
+      </label>
+      <br />
+      <label>
+        Set maximum MIDI pitch:
+        <input type='text' value={maxMidiPitch} onChange={handleMaxMidiChange}></input>
       </label>
 
     </div>
