@@ -12,24 +12,20 @@ class RegionForm extends Component {
    
   handleChange(event) {
     this.setState({region: event.target.value});
+    this.sendRegionToParent();
   }
 
   sendRegionToParent = () => {
-    //console.log(this.state.region);
     this.props.callback(this.state.region);
   }
 
   render() {
     let key = 0;
 
-    // this is not the 'correct' placement for this call,
-    // even if it appears to do the job correctly.
-    // it sends the selected region to parent component
-    // through a props callback function.
-    // however, it is called every single time this component is
-    // rendered, which is more than just once every time the page loads.
-    // TODO: really need to figure this out...
-    this.sendRegionToParent();
+    // TODO:
+    // find a place for this function all that will not throw
+    // a warning ('Cannot update a component App while...')
+    
 
     return (
       <div>

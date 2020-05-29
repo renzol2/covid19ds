@@ -4,6 +4,7 @@ import * as Tone from 'tone';
 
 // Functions
 import FetchOwidData from './data/fetchData';
+import getMinMax from './util/getMinMax';
 import mapData from './util/mapData';
 
 // Components
@@ -35,6 +36,8 @@ const App = () => {
     FetchOwidData(url, amount);
   const [region, setRegion] = useState('');
   const [regionData, setRegionData] = useState([]);
+  const [minAmount, setMinAmount] = useState(0);
+  const [maxAmount, setMaxAmount] = useState(0);
 
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
@@ -43,10 +46,27 @@ const App = () => {
   const [maxMidiPitch, setMaxMidiPitch] = useState(127);
 
   // Callback function for getting selected region from region form
-  let getRegion = (selectedRegion) => {
+  let initializeRegionData = (selectedRegion) => {
     setRegion(selectedRegion);
 
+    let selectedRegionData = [];
+    let amounts = [];
+    for (var line of data) {
+      selectedRegionData.push(
+        { 
+          date: line['date'], 
+          amount: parseInt(line[selectedRegion]) 
+        }
+      );
+      
+      amounts.push(parseInt(line[selectedRegion])); 
+    }
+
+    setRegionData(selectedRegionData);
     
+    let minMax = getMinMax(amounts);
+    setMinAmount(minMax.min);
+    setMaxAmount(minMax.max);
   };
 
   let handleMinMidiChange = event => {
@@ -66,13 +86,18 @@ const App = () => {
       <p>{isLoading ? 'Loading data...' : null}</p>
       <p>{isError ? 'An error occurred.' : null}</p>
       
-      <RegionForm regions={regions} callback={getRegion} /> 
+      <p>Min/max amount: {minAmount}/{maxAmount}</p>
 
+      <RegionForm regions={regions} callback={initializeRegionData} /> 
+      
       <ul>
         {
-          data.map(line => (
+          regionData.map(dateAmount => (
             <li key={key++} >
-              {line['date']}: {<strong>{line[region]}</strong>} cases (pitch: {})
+              {dateAmount.date}: <strong>{dateAmount.amount}</strong> 
+              (MIDI: {Math.floor(mapData(
+                  minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
+                ))})
             </li>
           ))
         }
@@ -96,7 +121,7 @@ const App = () => {
           Toggle oscillator
       </button>
       <br />
-      
+
       <p>Min/max MIDI pitch: [{minMidiPitch}, {maxMidiPitch}]</p>
       <label>
         Set minimum MIDI pitch:
