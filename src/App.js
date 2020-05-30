@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import './App.css';
 import * as Tone from 'tone';
 
-// Functions
+// Function imports
 import FetchOwidData from './data/fetchData';
 import getMinMax from './util/getMinMax';
 import mapData from './util/mapData';
@@ -45,21 +45,24 @@ const App = () => {
   const [minMidiPitch, setMinMidiPitch] = useState(0);
   const [maxMidiPitch, setMaxMidiPitch] = useState(127);
 
-  // Callback function for getting selected region from region form
-  let initializeRegionData = (selectedRegion) => {
+  // Callback functions for getting selected region from region form
+  let initializeRegion = (selectedRegion) => {
     setRegion(selectedRegion);
+    initializeRegionData(selectedRegion);
+  };
 
+  let initializeRegionData = newRegion => {
     let selectedRegionData = [];
     let amounts = [];
     for (var line of data) {
       selectedRegionData.push(
         { 
           date: line['date'], 
-          amount: parseInt(line[selectedRegion]) 
+          amount: parseInt(line[newRegion]) 
         }
       );
       
-      amounts.push(parseInt(line[selectedRegion])); 
+      amounts.push(parseInt(line[newRegion])); 
     }
 
     setRegionData(selectedRegionData);
@@ -67,10 +70,9 @@ const App = () => {
     let minMax = getMinMax(amounts);
     setMinAmount(minMax.min);
     setMaxAmount(minMax.max);
-  };
+  };  
 
   // Handler functions of text inputs for min/max MIDI pitch
-  
   let handleMinMidiChange = event => {
     let newMin = parseInt(event.target.value);
     if (isNaN(newMin)) {
@@ -90,7 +92,6 @@ const App = () => {
   return (
     <div className='body'>
       <h1>COVID-19 Data Sonification</h1>
-
       {/* covid19 data stuff */}
       <h3>Display data:</h3>
       <p>{isLoading ? 'Loading data...' : null}</p>
@@ -98,14 +99,15 @@ const App = () => {
       
       <p>Min/max amount: {minAmount}/{maxAmount}</p>
 
-      <RegionForm regions={regions} callback={initializeRegionData} /> 
+      <h4>Current region (App): {region}</h4>
+      <RegionForm regions={regions} callback={initializeRegion} /> 
       
       <ul>
         {
           regionData.map(dateAmount => (
             <li key={key++} >
-              {dateAmount.date}: <strong>{dateAmount.amount}</strong> 
-              (MIDI: {Math.floor(mapData(
+              {dateAmount.date}: <strong>{isNaN(dateAmount.amount) ? 'No data' : dateAmount.amount}</strong> 
+              (MIDI: {isNaN(dateAmount.amount) ? '' : Math.floor(mapData(
                   minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
                 ))})
             </li>

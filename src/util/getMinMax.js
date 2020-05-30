@@ -9,6 +9,7 @@ const getMinMax = arr => {
   let i = arr.length;
 
   while (i--) {
+    if (isNaN(arr[i])) continue;
     min = arr[i] < min ? arr[i] : min;
     max = arr[i] > max ? arr[i] : max;
   }

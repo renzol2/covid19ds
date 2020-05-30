@@ -6,8 +6,10 @@ class RegionForm extends Component {
     this.state = {
       region: 'World',
     };
-
+    this.sendRegionToParent();
+    
     this.handleChange = this.handleChange.bind(this);
+    this.sendRegionToParent = this.sendRegionToParent.bind(this);
   }
    
   handleChange(event) {
@@ -21,15 +23,9 @@ class RegionForm extends Component {
 
   render() {
     let key = 0;
-
-    // TODO:
-    // find a place for this function all that will not throw
-    // a warning ('Cannot update a component App while...')
-    
-
     return (
       <div>
-        <h4>Current region: {this.state.region}</h4>
+        <h4>Current region (form): {this.state.region}</h4>
         <form>
           <label>
             Choose region:
