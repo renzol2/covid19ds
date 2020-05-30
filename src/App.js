@@ -14,7 +14,7 @@ import getMinMax from './util/getMinMax';
 import mapData from './util/mapData';
 
 // Components
-import RegionForm from './data/regionForm';
+import RegionForm from './components/regionForm';
 
 const playTone = (midiPitch, oscType) => {
   const options = {oscillator: {
