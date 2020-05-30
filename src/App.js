@@ -69,12 +69,22 @@ const App = () => {
     setMaxAmount(minMax.max);
   };
 
+  // Handler functions of text inputs for min/max MIDI pitch
+  
   let handleMinMidiChange = event => {
-    setMinMidiPitch(event.target.value);
+    let newMin = parseInt(event.target.value);
+    if (isNaN(newMin)) {
+      return;
+    }
+    setMinMidiPitch(newMin);
   }
 
   let handleMaxMidiChange = event => {
-    setMaxMidiPitch(event.target.value);
+    let newMax = parseInt(event.target.value);
+    if (isNaN(newMax)) {
+      return;
+    }
+    setMaxMidiPitch(newMax);
   }
 
   return (
