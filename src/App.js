@@ -2,6 +2,12 @@ import React, {useState} from 'react';
 import './App.css';
 import * as Tone from 'tone';
 
+// React-Bootstrap imports
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import InputGroup from 'react-bootstrap/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
+
 // Function imports
 import FetchOwidData from './data/fetchData';
 import getMinMax from './util/getMinMax';
@@ -120,30 +126,48 @@ const App = () => {
       <h3>Options:</h3>
       <p>The current MIDI pitch is: {pitch}</p>
       <p>The current oscillator is: {oscTypes[oscSelection]}</p>
-      <button onClick={() =>playTone(pitch, oscTypes[oscSelection])}>play</button>
-      <br />
-
-      <button onClick={() => setPitch(pitch + 1)}>Increase pitch</button>
-      <button onClick={() => setPitch(pitch - 1)}>Decrease pitch</button>
+      <Button onClick={() =>playTone(pitch, oscTypes[oscSelection])}>play</Button>
       <br />
       
-      <button onClick={
-          () => setOscSelection((oscSelection + 1) % oscTypes.length)
-        }>
-          Toggle oscillator
-      </button>
+      <ButtonGroup aria-label='Increase/decrease pitch'>
+        <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>Increase pitch</Button>
+        <Button variant='secondary' onClick={() => setPitch(pitch - 1)}>Decrease pitch</Button>
+      </ButtonGroup>
+      <br />
+      
+      <Button variant='primary' onClick={
+        () => setOscSelection((oscSelection + 1) % oscTypes.length)
+      }>
+        Toggle oscillator
+      </Button>
       <br />
 
-      <p>Min/max MIDI pitch: [{minMidiPitch}, {maxMidiPitch}]</p>
-      <label>
-        Set minimum MIDI pitch:
-        <input type='text' value={minMidiPitch} onChange={handleMinMidiChange}></input>
-      </label>
+      <h5>Min/max MIDI pitch: [{minMidiPitch}, {maxMidiPitch}]</h5>
+
+      {/* Min MIDI pitch input */}
+      <InputGroup>
+        <InputGroup.Prepend>
+          <InputGroup.Text>Minimum MIDI pitch</InputGroup.Text>
+        </InputGroup.Prepend>
+        <FormControl 
+          placeholder='Ex: 0'
+          aria-label='Minimum MIDI pitch'
+          onChange={handleMinMidiChange}
+        />
+      </InputGroup>
       <br />
-      <label>
-        Set maximum MIDI pitch:
-        <input type='text' value={maxMidiPitch} onChange={handleMaxMidiChange}></input>
-      </label>
+
+      {/* Max MIDI pitch input */}
+      <InputGroup>
+        <InputGroup.Prepend>
+          <InputGroup.Text>Maximum MIDI pitch</InputGroup.Text>
+        </InputGroup.Prepend>
+        <FormControl
+          placeholder='Ex: 127'
+          aria-label='Maximum MIDI pitch'
+          onChange={handleMaxMidiChange}
+        />
+      </InputGroup>
 
     </div>
   )
