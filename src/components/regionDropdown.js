@@ -26,7 +26,7 @@ const CustomMenu = React.forwardRef(
     return (
       <div
         ref={ref}
-        stlye={style}
+        style={style}
         className={className}
         aria-labelledby={labeledBy}
       >
@@ -49,7 +49,7 @@ const CustomMenu = React.forwardRef(
 );
 
 const RegionDropdown = ({regions, callback}) => {
-  const [region, setRegion] = useState('Init region');
+  const [region, setRegion] = useState('');
 
   const handleChange = event => {
     setRegion(regions[event]);

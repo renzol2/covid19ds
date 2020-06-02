@@ -14,7 +14,6 @@ import getMinMax from './util/getMinMax';
 import mapData from './util/mapData';
 
 // Components
-import RegionForm from './components/regionForm';
 import RegionDropdown from './components/regionDropdown';
 
 const playTone = (midiPitch, oscType) => {
@@ -108,7 +107,6 @@ const App = () => {
 
       <h4>Current region (App): {region}</h4>
       <RegionDropdown regions={regions} callback={initializeRegion} />
-      {/* <RegionForm regions={regions} callback={initializeRegion} />  */}
       
       <ul>
         {
