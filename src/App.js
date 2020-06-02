@@ -105,7 +105,7 @@ const App = () => {
       
       <p>Min/max amount: {minAmount}/{maxAmount}</p>
 
-      <h4>Current region (App): {region}</h4>
+      <h4>Current region: {region}</h4>
       <RegionDropdown regions={regions} callback={initializeRegion} />
       
       <ul>

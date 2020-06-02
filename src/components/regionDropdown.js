@@ -1,13 +1,17 @@
-import React, {Component, useState} from 'react';
+import React, {useState} from 'react';
+import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import Dropdown from 'react-bootstrap/Dropdown';
+import './regionDropdown.css';
 
-// TODO:
-// Start typing out from here:
+// Search function for dropdown taken from:
 // https://react-bootstrap.github.io/components/dropdowns/#custom-dropdown-components
 
-const CustomToggle = React.forwardRef(({children, onClick}, ref) => (
-  <a
+/**
+ * Button that toggles visibility of countries
+ */
+const CountryToggle = React.forwardRef(({children, onClick}, ref) => (
+  <Button
     href=''
     ref={ref}
     onClick={(e) => {
@@ -16,10 +20,13 @@ const CustomToggle = React.forwardRef(({children, onClick}, ref) => (
     }}
   >
     {children}
-  </a>
+  </Button>
 ));
 
-const CustomMenu = React.forwardRef(
+/**
+ * Menu that lists all countries
+ */
+const RegionMenu = React.forwardRef(
   ({ children, style, className, 'aria-labelledby': labeledBy }, ref) => {
     const [value, setValue] = useState('');
 
@@ -48,6 +55,12 @@ const CustomMenu = React.forwardRef(
   },
 );
 
+
+/**
+ * Dropdown that displays regions and sends selection to parent component
+ * @param regions array of region names (strings)
+ * @param callback function from parent component that returns selected region 
+ */
 const RegionDropdown = ({regions, callback}) => {
   const [region, setRegion] = useState('');
 
@@ -63,13 +76,12 @@ const RegionDropdown = ({regions, callback}) => {
   let key = 0;
   return (
     <div>
-        <h4>Current region (Bootstrap): {region}</h4>
-        <Dropdown navbar={true} onSelect={handleChange}>
-          <Dropdown.Toggle as={CustomToggle} id='dropdown-custom-components'>
+        <Dropdown onSelect={handleChange}>
+          <Dropdown.Toggle as={CountryToggle} id='dropdown-custom-components'>
             Choose country 
           </Dropdown.Toggle>
 
-          <Dropdown.Menu as={CustomMenu}>
+          <Dropdown.Menu as={RegionMenu} className='dropdown-scroll'>
             {regions.map(region => (
               <Dropdown.Item 
                 eventKey={key++}
