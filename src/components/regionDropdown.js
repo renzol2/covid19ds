@@ -6,7 +6,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 // Start typing out from here:
 // https://react-bootstrap.github.io/components/dropdowns/#custom-dropdown-components
 
-const CustomToggle = React.forwardRef(({ children, onClick}, ref) => (
+const CustomToggle = React.forwardRef(({children, onClick}, ref) => (
   <a
     href=''
     ref={ref}
@@ -16,7 +16,6 @@ const CustomToggle = React.forwardRef(({ children, onClick}, ref) => (
     }}
   >
     {children}
-    &#x25bc; {/* unicode hex character for down-pointing arrowhead */}
   </a>
 ));
 
@@ -49,45 +48,39 @@ const CustomMenu = React.forwardRef(
   },
 );
 
-class RegionDropdown extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      region: 'World',
-    };
+const RegionDropdown = ({regions, callback}) => {
+  const [region, setRegion] = useState('Init region');
 
-    this.handleChange = this.handleChange.bind(this);
-    this.sendRegionToParent = this.sendRegionToParent.bind(this);
-  }
-   
-  handleChange(event) {
-    this.setState({region: event.target.value});
-    this.sendRegionToParent();
+  const handleChange = event => {
+    setRegion(regions[event]);
+    sendRegionToParent();
   }
 
-  sendRegionToParent = () => {
-    this.props.callback(this.state.region);
+  const sendRegionToParent = () => {
+    callback(region);
   }
 
-  render() {
-    let key = 0;
-    return (
-      <div>
-        <h4>Current region (form): {this.state.region}</h4>
-        <Dropdown onSelect={this.handleChange}>
+  let key = 0;
+  return (
+    <div>
+        <h4>Current region (Bootstrap): {region}</h4>
+        <Dropdown navbar={true} onSelect={handleChange}>
           <Dropdown.Toggle as={CustomToggle} id='dropdown-custom-components'>
             Choose country 
           </Dropdown.Toggle>
 
           <Dropdown.Menu as={CustomMenu}>
-            {this.props.regions.map(region => (
-              <Dropdown.Item eventKey={key++}>{region}</Dropdown.Item>
+            {regions.map(region => (
+              <Dropdown.Item 
+                eventKey={key++} 
+              >
+                {region}
+              </Dropdown.Item>
             ))}
           </Dropdown.Menu>
         </Dropdown>
       </div>
-    );
-  }
+  );
 }
 
 export default RegionDropdown;
