@@ -53,10 +53,10 @@ const RegionDropdown = ({regions, callback}) => {
 
   const handleChange = event => {
     setRegion(regions[event]);
-    sendRegionToParent();
+    sendRegionToParent(regions[event]);
   }
 
-  const sendRegionToParent = () => {
+  const sendRegionToParent = region => {
     callback(region);
   }
 
@@ -72,7 +72,8 @@ const RegionDropdown = ({regions, callback}) => {
           <Dropdown.Menu as={CustomMenu}>
             {regions.map(region => (
               <Dropdown.Item 
-                eventKey={key++} 
+                eventKey={key++}
+                key={key} 
               >
                 {region}
               </Dropdown.Item>
