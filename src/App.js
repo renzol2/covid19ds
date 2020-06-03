@@ -50,6 +50,7 @@ const App = () => {
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
   const [minMidiPitch, setMinMidiPitch] = useState(0);
   const [maxMidiPitch, setMaxMidiPitch] = useState(127);
+  const [bpm, setBpm] = useState(200);
 
   // Callback functions for getting selected region from region form
   let initializeRegion = (selectedRegion) => {
@@ -93,6 +94,14 @@ const App = () => {
       return;
     }
     setMaxMidiPitch(newMax);
+  }
+
+  let handleBpmChange = event => {
+    let newBpm = parseInt(event.target.value);
+    if (isNaN(newBpm)) {
+      return;
+    }
+    setBpm(newBpm);
   }
 
   return (
@@ -143,6 +152,7 @@ const App = () => {
       <br />
 
       <h5>Min/max MIDI pitch: [{minMidiPitch}, {maxMidiPitch}]</h5>
+      <h5>Current BPM: {bpm}</h5>
 
       {/* Min MIDI pitch input */}
       <InputGroup>
@@ -155,7 +165,6 @@ const App = () => {
           onChange={handleMinMidiChange}
         />
       </InputGroup>
-      <br />
 
       {/* Max MIDI pitch input */}
       <InputGroup>
@@ -166,6 +175,18 @@ const App = () => {
           placeholder='Ex: 127'
           aria-label='Maximum MIDI pitch'
           onChange={handleMaxMidiChange}
+        />
+      </InputGroup>
+
+      {/* BPM input */}
+      <InputGroup>
+        <InputGroup.Prepend>
+          <InputGroup.Text>Playback BPM</InputGroup.Text>
+        </InputGroup.Prepend>
+        <FormControl
+          placeholder='Ex: 200'
+          aria-label='BPM'
+          onChange={handleBpmChange}
         />
       </InputGroup>
 
