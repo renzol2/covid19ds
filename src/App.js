@@ -20,7 +20,7 @@ import RegionDropdown from './components/regionDropdown';
 const defaultPitch = 60;
 
 // Default BPM
-const defaultBpm = 200;
+const defaultBpm = 999;
 
 // Default MIDI parameters
 const defaultMinMidi = 36;
@@ -82,10 +82,9 @@ const App = () => {
     
     var pattern = new Tone.Pattern((time, note) => {
       synth.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
-      
-      console.log(note);
-      
-      if (pattern.progress === 1) {
+            
+      // Stop playback when finished
+      if (pattern.index === pattern.values.length - 1) {
         Tone.Transport.cancel();
       }
     }, notes);
