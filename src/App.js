@@ -71,6 +71,7 @@ const App = () => {
   
     var synth = new Tone.Synth(options).toMaster();
 
+    // Filter out all invalid data
     const notes = regionData.map(dateAmount => (
       isNaN(dateAmount.amount) ? null : Math.floor(mapData(
         minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
@@ -81,6 +82,9 @@ const App = () => {
     
     var pattern = new Tone.Pattern((time, note) => {
       synth.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
+      
+      console.log(note);
+      
       if (pattern.progress === 1) {
         Tone.Transport.cancel();
       }
@@ -115,7 +119,10 @@ const App = () => {
 
     setRegionData(selectedRegionData);
     
-    let minMax = getMinMax(amounts);
+    let minMax = getMinMax(amounts.filter(
+      amount => !isNaN(amount)
+    ));
+
     setMinAmount(minMax.min);
     setMaxAmount(minMax.max);
   };  
