@@ -36,13 +36,10 @@ const oscTypes = [
 // URL to fetch data
 const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
 
-// Number of data points to display (for now)
-const amount = 20;
-
 const App = () => {
   // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = 
-    FetchOwidData(url, amount);
+    FetchOwidData(url);
   const [region, setRegion] = useState('');
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
