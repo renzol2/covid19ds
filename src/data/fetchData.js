@@ -50,7 +50,7 @@ const FetchOwidData = (initUrl) => {
     // Call the above function
     fetchData();
 
-  }, [url]);
+  }, [url,]);
   
   // Returned as state
   return [{ data, regions, isLoading, isError }, setUrl];

@@ -22,6 +22,10 @@ const defaultPitch = 60;
 // Default BPM
 const defaultBpm = 200;
 
+// Default MIDI parameters
+const defaultMinMidi = 36;
+const defaultMaxMidi = 96;
+
 // Default oscillator selection
 const defaultOscSelection = 1;
 
@@ -48,8 +52,8 @@ const App = () => {
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
-  const [minMidiPitch, setMinMidiPitch] = useState(0);
-  const [maxMidiPitch, setMaxMidiPitch] = useState(127);
+  const [minMidiPitch, setMinMidiPitch] = useState(defaultMinMidi);
+  const [maxMidiPitch, setMaxMidiPitch] = useState(defaultMaxMidi);
   const [bpm, setBpm] = useState(defaultBpm);
 
   // Synth (with initialization)
@@ -65,25 +69,26 @@ const App = () => {
       type: oscType,
     }};
   
-    var testSynth = new Tone.Synth(options).toMaster();
+    var synth = new Tone.Synth(options).toMaster();
 
     const notes = regionData.map(dateAmount => (
-      isNaN(dateAmount.amount) ? 0 : Math.floor(mapData(
+      isNaN(dateAmount.amount) ? null : Math.floor(mapData(
         minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
       ))
-    ));
-
+    )).filter(
+      midiNote => midiNote !== null
+    );
+    
     var pattern = new Tone.Pattern((time, note) => {
-      testSynth.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
-      // Stop at end of pattern
-      if (note === notes[notes.length - 1]) {
+      synth.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
+      if (pattern.progress === 1) {
         Tone.Transport.cancel();
       }
     }, notes);
     
     pattern.start(0);
-    
     Tone.Transport.bpm.value = bpm;
+
     Tone.Transport.start();
     
   }
