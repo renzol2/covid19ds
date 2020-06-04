@@ -16,7 +16,7 @@ import mapData from './util/mapData';
 // Components
 import RegionDropdown from './components/regionDropdown';
 
-const playTone = (midiPitch, oscType) => {
+const playTest = (midiPitch, oscType) => {
   const options = {oscillator: {
     type: oscType,
   }};
@@ -132,30 +132,22 @@ const App = () => {
       <h4>Current region: {region}</h4>
       <RegionDropdown regions={regions} callback={initializeRegion} />
       
-      <ul>
-        {
-          regionData.map(dateAmount => (
-            <li key={key++} >
-              {dateAmount.date}: <strong>{isNaN(dateAmount.amount) ? 'No data' : dateAmount.amount}</strong> 
-              (MIDI: {isNaN(dateAmount.amount) ? '' : Math.floor(mapData(
-                  minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
-                ))})
-            </li>
-          ))
-        }
-      </ul>
-      
-
+      {regionData.length === 0 ? null : <Button variant='success'>Play</Button>
+}
       { /* tone js stuff */}
       <h3>Options:</h3>
       <p>The current MIDI pitch is: {pitch}</p>
       <p>The current oscillator is: {oscTypes[oscSelection]}</p>
-      <Button onClick={() =>playTone(pitch, oscTypes[oscSelection])}>play</Button>
+      <Button onClick={() => playTest(pitch, oscTypes[oscSelection])}>Play test</Button>
       <br />
       
       <ButtonGroup aria-label='Increase/decrease pitch'>
-        <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>Increase pitch</Button>
-        <Button variant='secondary' onClick={() => setPitch(pitch - 1)}>Decrease pitch</Button>
+        <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>
+          Increase pitch
+        </Button>
+        <Button variant='secondary' onClick={() => setPitch(pitch - 1)}>
+          Decrease pitch
+        </Button>
       </ButtonGroup>
       <br />
       
@@ -204,6 +196,20 @@ const App = () => {
           onChange={handleBpmChange}
         />
       </InputGroup>
+      
+      {/* Data (actual / MIDI) */}
+      <ul>
+        {
+          regionData.map(dateAmount => (
+            <li key={key++} >
+              {dateAmount.date}: <strong>{isNaN(dateAmount.amount) ? 'No data' : dateAmount.amount}</strong> 
+              (MIDI: {isNaN(dateAmount.amount) ? '' : Math.floor(mapData(
+                  minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
+                ))})
+            </li>
+          ))
+        }
+      </ul>
 
     </div>
   )
