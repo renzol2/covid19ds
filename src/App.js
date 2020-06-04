@@ -16,16 +16,11 @@ import mapData from './util/mapData';
 // Components
 import RegionDropdown from './components/regionDropdown';
 
-const playTest = (midiPitch, oscType) => {
-  const options = {oscillator: {
-    type: oscType,
-  }};
-  var synth = new Tone.Synth(options).toMaster();
-  synth.triggerAttackRelease(Tone.Frequency(midiPitch, 'midi'), '8n');
-}
-
 // Default pitch
 const defaultPitch = 60;
+
+// Default BPM
+const defaultBpm = 200;
 
 // Default oscillator selection
 const defaultOscSelection = 1;
@@ -58,7 +53,7 @@ const App = () => {
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
   const [minMidiPitch, setMinMidiPitch] = useState(0);
   const [maxMidiPitch, setMaxMidiPitch] = useState(127);
-  const [bpm, setBpm] = useState(200);
+  const [bpm, setBpm] = useState(defaultBpm);
 
   // Synth (with initialization)
   const synth = useRef(null);
@@ -66,13 +61,44 @@ const App = () => {
     synth.current = new Tone.Synth().toMaster();
   });
 
+  const playTest = (midiPitch, oscType) => {
+    const options = {oscillator: {
+      type: oscType,
+    }};
+  
+    var synth = new Tone.Synth(options).toMaster();
+
+    // Pentatonic scale
+    const notes = [
+      midiPitch, 
+      midiPitch + 2, 
+      midiPitch + 4, 
+      midiPitch + 7, 
+      midiPitch + 9
+    ];
+
+    console.log(notes);
+  
+    var pattern = new Tone.Pattern((time, note) => {
+      synth.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
+      if (note === notes[notes.length - 1]) {
+        Tone.Transport.cancel();
+      }
+    }, notes);
+  
+    pattern.start(0);
+    
+    Tone.Transport.start();
+    
+  }
+
   // Callback functions for getting selected region from region form
-  let initializeRegion = (selectedRegion) => {
+  const initializeRegion = (selectedRegion) => {
     setRegion(selectedRegion);
     initializeRegionData(selectedRegion);
   };
 
-  let initializeRegionData = newRegion => {
+  const initializeRegionData = newRegion => {
     let selectedRegionData = [];
     let amounts = [];
     for (var line of data) {
@@ -94,7 +120,7 @@ const App = () => {
   };  
 
   // Handler functions of text inputs for min/max MIDI pitch
-  let handleMinMidiChange = event => {
+  const handleMinMidiChange = event => {
     let newMin = parseInt(event.target.value);
     if (isNaN(newMin)) {
       return;
@@ -102,7 +128,7 @@ const App = () => {
     setMinMidiPitch(newMin);
   }
 
-  let handleMaxMidiChange = event => {
+  const handleMaxMidiChange = event => {
     let newMax = parseInt(event.target.value);
     if (isNaN(newMax)) {
       return;
@@ -110,7 +136,7 @@ const App = () => {
     setMaxMidiPitch(newMax);
   }
 
-  let handleBpmChange = event => {
+  const handleBpmChange = event => {
     let newBpm = parseInt(event.target.value);
     if (isNaN(newBpm)) {
       return;
