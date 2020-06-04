@@ -62,32 +62,31 @@ const App = () => {
   });
 
   const playTest = (midiPitch, oscType) => {
+    Tone.Transport.cancel();  // stops previous loop
+
     const options = {oscillator: {
       type: oscType,
     }};
   
-    var synth = new Tone.Synth(options).toMaster();
+    var testSynth = new Tone.Synth(options).toMaster();
 
-    // Pentatonic scale
-    const notes = [
-      midiPitch, 
-      midiPitch + 2, 
-      midiPitch + 4, 
-      midiPitch + 7, 
-      midiPitch + 9
-    ];
+    const notes = regionData.map(dateAmount => (
+      isNaN(dateAmount.amount) ? 0 : Math.floor(mapData(
+        minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
+      ))
+    ));
 
-    console.log(notes);
-  
     var pattern = new Tone.Pattern((time, note) => {
-      synth.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
+      testSynth.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
+      // Stop at end of pattern
       if (note === notes[notes.length - 1]) {
         Tone.Transport.cancel();
       }
     }, notes);
-  
+    
     pattern.start(0);
     
+    Tone.Transport.bpm.value = bpm;
     Tone.Transport.start();
     
   }
@@ -158,8 +157,18 @@ const App = () => {
       <h4>Current region: {region}</h4>
       <RegionDropdown regions={regions} callback={initializeRegion} />
       
-      {regionData.length === 0 ? null : <Button variant='success'>Play</Button>
-}
+      {
+        regionData.length === 0 
+          ? null 
+          : (
+              <div>
+                <Button variant='success' onClick={playTest}>Play</Button>
+                <Button variant='danger' onClick={() =>Tone.Transport.cancel()}>Stop</Button>
+              </div>
+             )
+      }
+
+
       { /* tone js stuff */}
       <h3>Options:</h3>
       <p>The current MIDI pitch is: {pitch}</p>
