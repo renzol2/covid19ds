@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import './App.css';
 import * as Tone from 'tone';
 
@@ -24,19 +24,27 @@ const playTone = (midiPitch, oscType) => {
   synth.triggerAttackRelease(Tone.Frequency(midiPitch, 'midi'), '8n');
 }
 
-const App = () => {
-  const defaultPitch = 60;
-  const defaultOscSelection = 1;
-  const oscTypes = [
-    'sine',
-    'triangle',
-    'square',
-    'sawtooth',
-  ];
-  const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
-  const amount = 75;
-  let key = 0;
+// Default pitch
+const defaultPitch = 60;
 
+// Default oscillator selection
+const defaultOscSelection = 1;
+
+// All oscillator types
+const oscTypes = [
+  'sine',
+  'triangle',
+  'square',
+  'sawtooth',
+];
+
+// URL to fetch data
+const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
+
+// Number of data points to display (for now)
+const amount = 20;
+
+const App = () => {
   // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = 
     FetchOwidData(url, amount);
@@ -51,6 +59,12 @@ const App = () => {
   const [minMidiPitch, setMinMidiPitch] = useState(0);
   const [maxMidiPitch, setMaxMidiPitch] = useState(127);
   const [bpm, setBpm] = useState(200);
+
+  // Synth (with initialization)
+  const synth = useRef(null);
+  useEffect(() => {
+    synth.current = new Tone.Synth().toMaster();
+  });
 
   // Callback functions for getting selected region from region form
   let initializeRegion = (selectedRegion) => {
@@ -104,6 +118,7 @@ const App = () => {
     setBpm(newBpm);
   }
 
+  let key = 0;
   return (
     <div className='body'>
       <h1>COVID-19 Data Sonification</h1>
