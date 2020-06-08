@@ -195,11 +195,11 @@ const App = () => {
 
       { /* tone js stuff */}
       <h3>Options:</h3>
-      <p>The current MIDI pitch is: {pitch}</p>
-      <p>The current oscillator is: {oscTypes[oscSelection]}</p>
       
       <Button variant="info" onClick={playTestTone}>Play test pitch</Button>
       <br />
+      <br />
+      
       <ButtonGroup aria-label='Increase/decrease pitch'>
         <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>
           Increase pitch
@@ -208,17 +208,19 @@ const App = () => {
           Decrease pitch
         </Button>
       </ButtonGroup>
-      <br />
+      <p>The current MIDI pitch is: <strong>{pitch}</strong></p>
+      
       
       <Button variant='primary' onClick={
         () => setOscSelection((oscSelection + 1) % oscTypes.length)
       }>
         Toggle oscillator
       </Button>
+      <p>The current oscillator is: <strong>{oscTypes[oscSelection]}</strong></p>
       <br />
 
-      <h5>Min/max MIDI pitch: [{minMidiPitch}, {maxMidiPitch}]</h5>
-      <h5>Current BPM: {bpm}</h5>
+      
+      
 
       {/* Min MIDI pitch input */}
       <InputGroup>
@@ -244,6 +246,10 @@ const App = () => {
         />
       </InputGroup>
 
+      <p>
+        Min/max MIDI pitch: <strong>[{minMidiPitch}, {maxMidiPitch}]</strong>
+      </p>
+
       {/* BPM input */}
       <InputGroup>
         <InputGroup.Prepend>
@@ -255,6 +261,9 @@ const App = () => {
           onChange={handleBpmChange}
         />
       </InputGroup>
+      <p>
+        Current BPM: <strong>{bpm}</strong>
+      </p>
       
       {/* Data (actual / MIDI) */}
       {/* <ul>
