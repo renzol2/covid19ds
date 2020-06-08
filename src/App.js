@@ -20,7 +20,7 @@ import RegionDropdown from './components/regionDropdown';
 const defaultPitch = 60;
 
 // Default BPM
-const defaultBpm = 999;
+const defaultBpm = 600;
 
 // Default MIDI parameters
 const defaultMinMidi = 36;
@@ -66,6 +66,9 @@ const App = () => {
     synth.current = new Tone.Synth(options).toMaster();
   });
 
+  /**
+   * Sonifies data of selected region
+   */
   const sonifyData = () => {
     Tone.Transport.cancel();  // stops previous loop
 
@@ -95,16 +98,26 @@ const App = () => {
     
   }
 
+  /**
+   * Plays a single tone with current synth options
+   */
   const playTestTone = () => {
     synth.current.triggerAttackRelease(Tone.Frequency(pitch, 'midi'), '8n');
   }
 
-  // Callback functions for getting selected region from region form
+  /**
+   * Updates state variables with region from dropdown
+   * @param {string} selectedRegion region from dropdown component
+   */
   const initializeRegion = (selectedRegion) => {
     setRegion(selectedRegion);
     initializeRegionData(selectedRegion);
   };
 
+  /**
+   * Sets region data and min/max pitches using region data
+   * @param {string} newRegion selected region from dropdown
+   */
   const initializeRegionData = newRegion => {
     let selectedRegionData = [];
     let amounts = [];
@@ -244,7 +257,7 @@ const App = () => {
       </InputGroup>
       
       {/* Data (actual / MIDI) */}
-      <ul>
+      {/* <ul>
         {
           regionData.map(dateAmount => (
             <li key={key++} >
@@ -255,7 +268,7 @@ const App = () => {
             </li>
           ))
         }
-      </ul>
+      </ul> */}
 
     </div>
   )
