@@ -59,17 +59,15 @@ const App = () => {
   // Synth (with initialization)
   const synth = useRef(null);
   useEffect(() => {
-    synth.current = new Tone.Synth().toMaster();
+    // Set oscillator type and initialize synth
+    const options = {oscillator: {
+      type: oscTypes[oscSelection],
+    }};
+    synth.current = new Tone.Synth(options).toMaster();
   });
 
-  const sonifyData = (oscType) => {
+  const sonifyData = () => {
     Tone.Transport.cancel();  // stops previous loop
-
-    const options = {oscillator: {
-      type: oscType,
-    }};
-  
-    var synth = new Tone.Synth(options).toMaster();
 
     // Filter out all invalid data
     const notes = regionData.map(dateAmount => (
@@ -80,8 +78,9 @@ const App = () => {
       midiNote => midiNote !== null
     );
     
+    // Set up pattern to play data
     var pattern = new Tone.Pattern((time, note) => {
-      synth.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
+      synth.current.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
             
       // Stop playback when finished
       if (pattern.index === pattern.values.length - 1) {
@@ -97,7 +96,7 @@ const App = () => {
   }
 
   const playTestTone = () => {
-
+    synth.current.triggerAttackRelease(Tone.Frequency(pitch, 'midi'), '8n');
   }
 
   // Callback functions for getting selected region from region form
@@ -185,8 +184,9 @@ const App = () => {
       <h3>Options:</h3>
       <p>The current MIDI pitch is: {pitch}</p>
       <p>The current oscillator is: {oscTypes[oscSelection]}</p>
-      <br />
       
+      <Button variant="info" onClick={playTestTone}>Play test pitch</Button>
+      <br />
       <ButtonGroup aria-label='Increase/decrease pitch'>
         <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>
           Increase pitch
