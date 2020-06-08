@@ -7,7 +7,7 @@ import Papa from 'papaparse';
 
   Modeled after: https://www.robinwieruch.de/react-hooks-fetch-data
 */
-const FetchOwidData = (initUrl, amount) => {
+const FetchOwidData = (initUrl) => {
   const [url, setUrl] = useState(initUrl);
   const [data, setData] = useState([]);
   const [regions, setRegions] = useState([]);
@@ -22,7 +22,6 @@ const FetchOwidData = (initUrl, amount) => {
       try {
         Papa.parse(url, {
           download: true,
-          preview: amount,
           header: true,  // uses the header to convert CSV into JSON
           
           // Callback function called once PapaParser finishes parsing
@@ -51,7 +50,7 @@ const FetchOwidData = (initUrl, amount) => {
     // Call the above function
     fetchData();
 
-  }, [url, amount]);
+  }, [url,]);
   
   // Returned as state
   return [{ data, regions, isLoading, isError }, setUrl];

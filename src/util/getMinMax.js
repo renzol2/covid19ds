@@ -13,7 +13,7 @@ const getMinMax = arr => {
     min = arr[i] < min ? arr[i] : min;
     max = arr[i] > max ? arr[i] : max;
   }
-
+  
   return { min, max };
 }
 
