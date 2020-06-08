@@ -62,7 +62,7 @@ const App = () => {
     synth.current = new Tone.Synth().toMaster();
   });
 
-  const playTest = (midiPitch, oscType) => {
+  const sonifyData = (oscType) => {
     Tone.Transport.cancel();  // stops previous loop
 
     const options = {oscillator: {
@@ -94,6 +94,10 @@ const App = () => {
 
     Tone.Transport.start();
     
+  }
+
+  const playTestTone = () => {
+
   }
 
   // Callback functions for getting selected region from region form
@@ -170,8 +174,8 @@ const App = () => {
           ? null 
           : (
               <div>
-                <Button variant='success' onClick={playTest}>Play</Button>
-                <Button variant='danger' onClick={() =>Tone.Transport.cancel()}>Stop</Button>
+                <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>Play</Button>
+                <Button variant='danger' onClick={() => Tone.Transport.cancel()}>Stop</Button>
               </div>
              )
       }
@@ -181,7 +185,6 @@ const App = () => {
       <h3>Options:</h3>
       <p>The current MIDI pitch is: {pitch}</p>
       <p>The current oscillator is: {oscTypes[oscSelection]}</p>
-      <Button onClick={() => playTest(pitch, oscTypes[oscSelection])}>Play test</Button>
       <br />
       
       <ButtonGroup aria-label='Increase/decrease pitch'>
