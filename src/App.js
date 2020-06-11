@@ -189,11 +189,11 @@ const App = () => {
       <br />
       
       <ButtonGroup aria-label='Increase/decrease pitch'>
-        <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>
-          Increase pitch
-        </Button>
         <Button variant='secondary' onClick={() => setPitch(pitch - 1)}>
           Decrease pitch
+        </Button>
+        <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>
+          Increase pitch
         </Button>
       </ButtonGroup>
       <p>The current MIDI pitch is: <strong>{pitch}</strong></p>
@@ -206,9 +206,6 @@ const App = () => {
       </Button>
       <p>The current oscillator is: <strong>{oscTypes[oscSelection]}</strong></p>
       <br />
-
-      
-      
 
       {/* Min MIDI pitch input */}
       <InputGroup>
