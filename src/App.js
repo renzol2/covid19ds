@@ -142,29 +142,17 @@ const App = () => {
     setMaxAmount(minMax.max);
   };  
 
-  // Handler functions of text inputs for min/max MIDI pitch
-  const handleMinMidiChange = event => {
-    let newMin = parseInt(event.target.value);
-    if (isNaN(newMin)) {
+  /**
+   * Insures only numerical inputs are processed
+   * @param {Object} event event from React-Bootstrap form input 
+   * @param {Function} setStateFunction function to set state with new event value
+   */
+  const handleInput = (event, setStateFunction) => {
+    let newValue = parseInt(event.target.value);
+    if (isNaN(newValue)) {
       return;
     }
-    setMinMidiPitch(newMin);
-  }
-
-  const handleMaxMidiChange = event => {
-    let newMax = parseInt(event.target.value);
-    if (isNaN(newMax)) {
-      return;
-    }
-    setMaxMidiPitch(newMax);
-  }
-
-  const handleBpmChange = event => {
-    let newBpm = parseInt(event.target.value);
-    if (isNaN(newBpm)) {
-      return;
-    }
-    setBpm(newBpm);
+    setStateFunction(newValue);
   }
 
   let key = 0;
@@ -230,7 +218,7 @@ const App = () => {
         <FormControl 
           placeholder='Ex: 0'
           aria-label='Minimum MIDI pitch'
-          onChange={handleMinMidiChange}
+          onChange={(event) => handleInput(event, setMinMidiPitch)}
         />
       </InputGroup>
 
@@ -242,7 +230,7 @@ const App = () => {
         <FormControl
           placeholder='Ex: 127'
           aria-label='Maximum MIDI pitch'
-          onChange={handleMaxMidiChange}
+          onChange={(event) => handleInput(event, setMaxMidiPitch)}
         />
       </InputGroup>
 
@@ -258,7 +246,7 @@ const App = () => {
         <FormControl
           placeholder='Ex: 200'
           aria-label='BPM'
-          onChange={handleBpmChange}
+          onChange={(event) => handleInput(event, setBpm)}
         />
       </InputGroup>
       <p>
