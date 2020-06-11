@@ -62,7 +62,7 @@ const App = () => {
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(0);
   const [visualize, setVisualize] = useState(true);
-  const [selectedAmounts, setSelectedAmounts] = useState([]);
+  const [currentAmt, setCurrentAmt] = useState(-1);
 
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
@@ -106,6 +106,23 @@ const App = () => {
     Tone.Transport.bpm.value = bpm;
 
     Tone.Transport.start();
+  }
+
+  /**
+   * Sanitizes region data for visualiation in react-vis
+   * @param {Array} regionData region data containing objects { date, amount, index }
+   * @returns an array of objects { x, y, color }
+   */
+  const sanitizeData = regionData => {
+    const data = regionData.filter(entry => !isNaN(entry.amount)).map(
+      entry => ({
+        x: entry.index,
+        y: entry.amount,
+        color: entry.amount === currentAmt ? 0 : 1,
+      })
+    );
+    
+    return data;
   }
 
   /**
@@ -180,6 +197,7 @@ const App = () => {
       <p>{isError ? 'An error occurred.' : null}</p>
       
       <p>Min/max amount: {minAmount}/{maxAmount}</p>
+      <p>Current amount: {currentAmt === -1 ? 'None' : currentAmt}</p>
 
       <h4>Current region: {region}</h4>
       <RegionDropdown regions={regions} callback={initializeRegion} />
@@ -202,34 +220,26 @@ const App = () => {
       }
 
       {/* Data visualization */}
-      {visualize 
-        && <FlexibleWidthXYPlot 
-            height={400}
-            getX={d => d.index}
-            getY={d => d.amount}
-            onMouseLeave={() => setSelectedAmounts([])}
-            animation>
-            <VerticalBarSeries
-              color="cornflowerblue"
-              data={regionData.filter(entry => !isNaN(entry.amount))}
-              onNearestX={(entry, {index}) => {
-                setSelectedAmounts([regionData[index]]);
-                console.log(selectedAmounts);
-              }}
-            />
-            <XAxis title="Days since December 31, 2019" />
-            <YAxis title="Total amount of cases" left={20} />
-            <HorizontalGridLines />
-            <VerticalGridLines />
-            <Crosshair values={selectedAmounts} >
-              {selectedAmounts.length > 0 && 
-                <div style={{background: 'black'}}>
-                  <h3>Values:</h3>
-                  <p>Date: {selectedAmounts[0].date}</p>
-                  <p>Amount: {selectedAmounts[0].amount}</p>
-                </div>}
-            </Crosshair>
-          </FlexibleWidthXYPlot>
+      {visualize && 
+        <FlexibleWidthXYPlot 
+          height={400}
+          onMouseLeave={() => setCurrentAmt(-1)}
+          colorRange={['yellow', 'cornflowerblue']}
+          animation
+        >
+          <HorizontalGridLines style={{stroke: '#B7E9ED'}} />
+          <VerticalGridLines style={{stroke: '#B7E9ED'}} />
+
+          <VerticalBarSeries
+            data={sanitizeData(regionData)}
+            onNearestX={(entry, {index}) => {
+              setCurrentAmt(entry.y);
+            }}
+          />
+
+          <XAxis title="Days since December 31, 2019" />
+          <YAxis title="Total amount of cases" left={50} />
+        </FlexibleWidthXYPlot>
       }
 
       { /* tone js stuff */}
