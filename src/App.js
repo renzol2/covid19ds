@@ -5,7 +5,13 @@ import './App.css';
 import * as Tone from 'tone';
 
 // react-vis imports
-import {FlexibleWidthXYPlot, XAxis, YAxis, HorizontalGridLines, VerticalBarSeries} from 'react-vis';
+import {
+  FlexibleWidthXYPlot, 
+  XAxis, 
+  YAxis, 
+  VerticalBarSeries, 
+  Crosshair
+} from 'react-vis';
 
 // React-Bootstrap imports
 import Button from 'react-bootstrap/Button';
@@ -53,6 +59,8 @@ const App = () => {
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(0);
+  const [visualize, setVisualize] = useState(true);
+  const [selectedAmount, setSelectedAmount] = useState(false);
 
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
@@ -175,6 +183,7 @@ const App = () => {
 
       <h4>Current region: {region}</h4>
       <RegionDropdown regions={regions} callback={initializeRegion} />
+      <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
       
       {/* Play/stop buttons when region data is selected */}
       {
@@ -193,18 +202,22 @@ const App = () => {
       }
 
       {/* Data visualization */}
-      <FlexibleWidthXYPlot 
-        height={400}
-        getX={d => d.index}
-        getY={d => d.amount}
-      >
-        <HorizontalGridLines />
-        <VerticalBarSeries
-          color="blue"
-          data={regionData.filter(entry => !isNaN(entry.amount))}/>
-        <XAxis title="X" />
-        <YAxis />
-      </FlexibleWidthXYPlot>
+      {visualize && <FlexibleWidthXYPlot 
+            height={400}
+            getX={d => d.index}
+            getY={d => d.amount}
+            // onMouseLeave={() => setSelectedAmount(false)}
+            animation>
+            <VerticalBarSeries
+              color="cornflowerblue"
+              data={regionData.filter(entry => !isNaN(entry.amount))}
+              // onNearestX={(d) => setSelectedAmount(d.amount)}
+            />
+            <XAxis title="Days since December 31, 2019" />
+            <YAxis title="Total amount of cases" left={40} />
+            {selectedAmount && <Crosshair values={[selectedAmount]} />}
+          </FlexibleWidthXYPlot>
+      }
 
       { /* tone js stuff */}
       <h3>Options:</h3>
@@ -276,8 +289,9 @@ const App = () => {
       </p>
       
       {/* Data (actual / MIDI) */}
+      {regionData.length !== 0 && (<h2>Raw data</h2>)}
       <ul>
-        {
+        {regionData.length !== 0 &&
           regionData.map(entry => (
             <li key={key++} >
               {entry.date}: <strong>{
