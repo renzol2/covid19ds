@@ -87,15 +87,18 @@ const App = () => {
   const sonifyData = () => {
     Tone.Transport.cancel();  // stops previous loop
 
-    // Filter out all invalid data
-    const notes = regionData.map(entry => (
-      Math.floor(mapData(minAmount, maxAmount, minMidiPitch, maxMidiPitch, entry.amount))
-    )).filter(midiNote => !isNaN(midiNote));
+    // Map region data to objects { note, index }
+    const notes = regionData.map(entry => ({
+      note: Math.floor(mapData(minAmount, maxAmount, minMidiPitch, maxMidiPitch, entry.amount)),
+      index: entry.index,
+    })).filter(entry => !isNaN(entry.note));
     
     // Set up pattern to play data
-    var pattern = new Tone.Pattern((time, note) => {
-      synth.current.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
-            
+    var pattern = new Tone.Pattern((time, entry) => {
+      synth.current.triggerAttackRelease(Tone.Frequency(entry.note, 'midi'), 0.25);
+      
+      setCurrentAmt(regionData[entry.index].amount);
+
       // Stop playback when finished
       if (pattern.index === pattern.values.length - 1) {
         Tone.Transport.cancel();
@@ -163,7 +166,7 @@ const App = () => {
       amounts.push(parseInt(line[newRegion])); 
     }
 
-    selectedRegionData.filter(entry => !isNaN(entry.amount))
+    selectedRegionData.filter(entry => !isNaN(entry.amount));
     setRegionData(selectedRegionData);
     
     let minMax = getMinMax(amounts.filter(
@@ -225,7 +228,7 @@ const App = () => {
           height={400}
           onMouseLeave={() => setCurrentAmt(-1)}
           colorRange={['yellow', 'cornflowerblue']}
-          animation
+          //animation
         >
           <HorizontalGridLines style={{stroke: '#B7E9ED'}} />
           <VerticalGridLines style={{stroke: '#B7E9ED'}} />
