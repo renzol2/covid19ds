@@ -1,6 +1,11 @@
 import React, {useState, useRef, useEffect} from 'react';
 import './App.css';
+
+// Tone.js imports
 import * as Tone from 'tone';
+
+// react-vis imports
+import {FlexibleWidthXYPlot, XAxis, YAxis, HorizontalGridLines, VerticalBarSeries} from 'react-vis';
 
 // React-Bootstrap imports
 import Button from 'react-bootstrap/Button';
@@ -73,9 +78,9 @@ const App = () => {
     Tone.Transport.cancel();  // stops previous loop
 
     // Filter out all invalid data
-    const notes = regionData.map(dateAmount => (
-      isNaN(dateAmount.amount) ? null : Math.floor(mapData(
-        minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
+    const notes = regionData.map(entry => (
+      isNaN(entry.amount) ? null : Math.floor(mapData(
+        minAmount, maxAmount, minMidiPitch, maxMidiPitch, entry.amount
       ))
     )).filter(
       midiNote => midiNote !== null
@@ -95,7 +100,6 @@ const App = () => {
     Tone.Transport.bpm.value = bpm;
 
     Tone.Transport.start();
-    
   }
 
   /**
@@ -121,11 +125,14 @@ const App = () => {
   const initializeRegionData = newRegion => {
     let selectedRegionData = [];
     let amounts = [];
+
+    let key = 0;
     for (var line of data) {
       selectedRegionData.push(
         { 
           date: line['date'], 
-          amount: parseInt(line[newRegion]) 
+          amount: parseInt(line[newRegion]),
+          index: key++
         }
       );
       
@@ -169,17 +176,35 @@ const App = () => {
       <h4>Current region: {region}</h4>
       <RegionDropdown regions={regions} callback={initializeRegion} />
       
+      {/* Play/stop buttons when region data is selected */}
       {
         regionData.length === 0 
           ? null 
           : (
               <div>
-                <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>Play</Button>
-                <Button variant='danger' onClick={() => Tone.Transport.cancel()}>Stop</Button>
+                <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>
+                  Play
+                </Button>
+                <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
+                  Stop
+                </Button>
               </div>
-             )
+            )
       }
 
+      {/* Data visualization */}
+      <FlexibleWidthXYPlot 
+        height={400}
+        getX={d => d.index}
+        getY={d => d.amount}
+      >
+        <HorizontalGridLines />
+        <VerticalBarSeries
+          color="blue"
+          data={regionData.filter(entry => !isNaN(entry.amount))}/>
+        <XAxis title="X" />
+        <YAxis />
+      </FlexibleWidthXYPlot>
 
       { /* tone js stuff */}
       <h3>Options:</h3>
@@ -251,18 +276,19 @@ const App = () => {
       </p>
       
       {/* Data (actual / MIDI) */}
-      {/* <ul>
+      <ul>
         {
-          regionData.map(dateAmount => (
+          regionData.map(entry => (
             <li key={key++} >
-              {dateAmount.date}: <strong>{isNaN(dateAmount.amount) ? 'No data' : dateAmount.amount}</strong> 
-              (MIDI: {isNaN(dateAmount.amount) ? '' : Math.floor(mapData(
-                  minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
-                ))})
+              {entry.date}: <strong>{
+                isNaN(entry.amount) 
+                  ? 'No data' 
+                  : entry.amount
+              }</strong> 
             </li>
           ))
         }
-      </ul> */}
+      </ul>
 
     </div>
   )
