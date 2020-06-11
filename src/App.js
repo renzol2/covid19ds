@@ -10,7 +10,9 @@ import {
   XAxis, 
   YAxis, 
   VerticalBarSeries, 
-  Crosshair
+  Crosshair,
+  HorizontalGridLines,
+  VerticalGridLines,
 } from 'react-vis';
 
 // React-Bootstrap imports
@@ -31,7 +33,7 @@ import RegionDropdown from './components/regionDropdown';
 const defaultPitch = 60;
 
 // Default BPM
-const defaultBpm = 600;
+const defaultBpm = 999;
 
 // Default MIDI parameters
 const defaultMinMidi = 36;
@@ -60,7 +62,7 @@ const App = () => {
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(0);
   const [visualize, setVisualize] = useState(true);
-  const [selectedAmount, setSelectedAmount] = useState(false);
+  const [selectedAmounts, setSelectedAmounts] = useState([]);
 
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
@@ -87,12 +89,8 @@ const App = () => {
 
     // Filter out all invalid data
     const notes = regionData.map(entry => (
-      isNaN(entry.amount) ? null : Math.floor(mapData(
-        minAmount, maxAmount, minMidiPitch, maxMidiPitch, entry.amount
-      ))
-    )).filter(
-      midiNote => midiNote !== null
-    );
+      Math.floor(mapData(minAmount, maxAmount, minMidiPitch, maxMidiPitch, entry.amount))
+    )).filter(midiNote => !isNaN(midiNote));
     
     // Set up pattern to play data
     var pattern = new Tone.Pattern((time, note) => {
@@ -134,6 +132,7 @@ const App = () => {
     let selectedRegionData = [];
     let amounts = [];
 
+    // Populate region data and amounts
     let key = 0;
     for (var line of data) {
       selectedRegionData.push(
@@ -147,6 +146,7 @@ const App = () => {
       amounts.push(parseInt(line[newRegion])); 
     }
 
+    selectedRegionData.filter(entry => !isNaN(entry.amount))
     setRegionData(selectedRegionData);
     
     let minMax = getMinMax(amounts.filter(
@@ -202,20 +202,33 @@ const App = () => {
       }
 
       {/* Data visualization */}
-      {visualize && <FlexibleWidthXYPlot 
+      {visualize 
+        && <FlexibleWidthXYPlot 
             height={400}
             getX={d => d.index}
             getY={d => d.amount}
-            // onMouseLeave={() => setSelectedAmount(false)}
+            onMouseLeave={() => setSelectedAmounts([])}
             animation>
             <VerticalBarSeries
               color="cornflowerblue"
               data={regionData.filter(entry => !isNaN(entry.amount))}
-              // onNearestX={(d) => setSelectedAmount(d.amount)}
+              onNearestX={(entry, {index}) => {
+                setSelectedAmounts([regionData[index]]);
+                console.log(selectedAmounts);
+              }}
             />
             <XAxis title="Days since December 31, 2019" />
-            <YAxis title="Total amount of cases" left={40} />
-            {selectedAmount && <Crosshair values={[selectedAmount]} />}
+            <YAxis title="Total amount of cases" left={20} />
+            <HorizontalGridLines />
+            <VerticalGridLines />
+            <Crosshair values={selectedAmounts} >
+              {selectedAmounts.length > 0 && 
+                <div style={{background: 'black'}}>
+                  <h3>Values:</h3>
+                  <p>Date: {selectedAmounts[0].date}</p>
+                  <p>Amount: {selectedAmounts[0].amount}</p>
+                </div>}
+            </Crosshair>
           </FlexibleWidthXYPlot>
       }
 
