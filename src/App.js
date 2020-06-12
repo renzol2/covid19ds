@@ -82,6 +82,59 @@ const App = () => {
   });
 
   /**
+   * Updates state variables with region from dropdown
+   * @param {string} selectedRegion region from dropdown component
+   */
+  const initializeRegion = (selectedRegion) => {
+    setRegion(selectedRegion);
+    initializeRegionData(selectedRegion);
+  };
+
+  /**
+   * Sets region data and min/max pitches using region data
+   * @param {string} newRegion selected region from dropdown
+   */
+  const initializeRegionData = newRegion => {
+    let selectedRegionData = [];
+    let amounts = [];
+
+    // Populate region data and amounts
+    let key = 0;
+    for (var line of data) {
+      selectedRegionData.push(
+        { 
+          date: line['date'], 
+          amount: parseInt(line[newRegion]),
+          index: key++
+        }
+      );
+      
+      amounts.push(parseInt(line[newRegion])); 
+    }
+
+    selectedRegionData.filter(entry => !isNaN(entry.amount));
+    setRegionData(selectedRegionData);
+    
+    let minMax = getMinMax(amounts.filter(
+      amount => !isNaN(amount)
+    ));
+
+    setMinAmount(minMax.min);
+    setMaxAmount(minMax.max);
+  };
+
+  /**
+   * Maps a point of data to a MIDI note using min/max amounts kept in state
+   * @param {int} amount data to map
+   * @returns {int} MIDI note
+   */
+  function convertEntryToMidi(amount) {
+    let mapped = mapData(minAmount, maxAmount, minMidiPitch, maxMidiPitch, amount);
+    let midi = Math.floor(mapped);
+    return midi;
+  }
+
+  /**
    * Sonifies data of selected region
    */
   const sonifyData = () => {
@@ -89,7 +142,7 @@ const App = () => {
 
     // Map region data to objects { note, index }
     const notes = regionData.map(entry => ({
-      note: Math.floor(mapData(minAmount, maxAmount, minMidiPitch, maxMidiPitch, entry.amount)),
+      note: convertEntryToMidi(entry.amount),
       date: entry.date,
       index: entry.index,
     })).filter(entry => !isNaN(entry.note));
@@ -133,51 +186,9 @@ const App = () => {
   /**
    * Plays a single tone with current synth options
    */
-  const playTestTone = () => {
-    synth.current.triggerAttackRelease(Tone.Frequency(pitch, 'midi'), '8n');
-  }
-
-  /**
-   * Updates state variables with region from dropdown
-   * @param {string} selectedRegion region from dropdown component
-   */
-  const initializeRegion = (selectedRegion) => {
-    setRegion(selectedRegion);
-    initializeRegionData(selectedRegion);
-  };
-
-  /**
-   * Sets region data and min/max pitches using region data
-   * @param {string} newRegion selected region from dropdown
-   */
-  const initializeRegionData = newRegion => {
-    let selectedRegionData = [];
-    let amounts = [];
-
-    // Populate region data and amounts
-    let key = 0;
-    for (var line of data) {
-      selectedRegionData.push(
-        { 
-          date: line['date'], 
-          amount: parseInt(line[newRegion]),
-          index: key++
-        }
-      );
-      
-      amounts.push(parseInt(line[newRegion])); 
-    }
-
-    selectedRegionData.filter(entry => !isNaN(entry.amount));
-    setRegionData(selectedRegionData);
-    
-    let minMax = getMinMax(amounts.filter(
-      amount => !isNaN(amount)
-    ));
-
-    setMinAmount(minMax.min);
-    setMaxAmount(minMax.max);
-  };  
+  const playMidiNote = midiNote => {
+    synth.current.triggerAttackRelease(Tone.Frequency(midiNote, 'midi'), '8n');
+  }  
 
   /**
    * Insures only numerical inputs are processed
@@ -230,7 +241,7 @@ const App = () => {
           height={400}
           onMouseLeave={() => setCurrentAmt(-1)}
           colorRange={['yellow', 'cornflowerblue']}
-          //animation
+          animation
         >
           <HorizontalGridLines style={{stroke: '#B7E9ED'}} />
           <VerticalGridLines style={{stroke: '#B7E9ED'}} />
@@ -240,6 +251,9 @@ const App = () => {
             onNearestX={(entry, {index}) => {
               setCurrentAmt(entry.y);
               setCurrentDate(regionData[index].date);
+            }}
+            onValueClick={entry => {
+              playMidiNote(convertEntryToMidi(entry.y));
             }}
           />
 
@@ -251,7 +265,7 @@ const App = () => {
       { /* tone js stuff */}
       <h3>Options:</h3>
       
-      <Button variant="info" onClick={playTestTone}>Play test pitch</Button>
+      <Button variant="info" onClick={() => playMidiNote(pitch)}>Play test pitch</Button>
       <br />
       <br />
       
