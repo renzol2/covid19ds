@@ -12,6 +12,7 @@ import {
   VerticalBarSeries, 
   HorizontalGridLines,
   VerticalGridLines,
+  Highlight
 } from 'react-vis';
 
 // React-Bootstrap imports
@@ -61,6 +62,7 @@ const App = () => {
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(0);
   const [visualize, setVisualize] = useState(true);
+  const [animation, setAnimation] = useState(false);
   const [currentAmt, setCurrentAmt] = useState(-1);
   const [currentDate, setCurrentDate] = useState('');
 
@@ -216,22 +218,28 @@ const App = () => {
       <p>Current amount: {currentAmt === -1 ? 'None' : `${currentAmt} cases at ${currentDate}`}</p>
 
       <h4>Current region: {region}</h4>
-      <RegionDropdown regions={regions} callback={initializeRegion} />
-      <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
       
+
+      <ButtonGroup>
+        <RegionDropdown regions={regions} callback={initializeRegion} />
+        <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
+        <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
+      </ButtonGroup>
+      <br />
+
       {/* Play/stop buttons when region data is selected */}
       {
         regionData.length === 0 
           ? null 
           : (
-              <div>
+              <ButtonGroup>
                 <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>
                   Play
                 </Button>
                 <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
                   Stop
                 </Button>
-              </div>
+              </ButtonGroup>
             )
       }
 
@@ -241,7 +249,7 @@ const App = () => {
           height={400}
           onMouseLeave={() => setCurrentAmt(-1)}
           colorRange={['yellow', 'cornflowerblue']}
-          animation
+          animation={animation}
         >
           <HorizontalGridLines style={{stroke: '#B7E9ED'}} />
           <VerticalGridLines style={{stroke: '#B7E9ED'}} />
