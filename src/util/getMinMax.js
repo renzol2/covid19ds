@@ -1,6 +1,6 @@
 /**
  * Finds the minimum and maximum of an array
- * @param {*} arr array to find min/max
+ * @param {Array} arr array to find min/max
  * @returns object { min: [min], max: [max] }
  */
 const getMinMax = arr => {

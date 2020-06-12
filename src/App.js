@@ -1,6 +1,18 @@
 import React, {useState, useRef, useEffect} from 'react';
 import './App.css';
+
+// Tone.js imports
 import * as Tone from 'tone';
+
+// react-vis imports
+import {
+  FlexibleWidthXYPlot, 
+  XAxis, 
+  YAxis, 
+  VerticalBarSeries, 
+  HorizontalGridLines,
+  VerticalGridLines,
+} from 'react-vis';
 
 // React-Bootstrap imports
 import Button from 'react-bootstrap/Button';
@@ -20,7 +32,7 @@ import RegionDropdown from './components/regionDropdown';
 const defaultPitch = 60;
 
 // Default BPM
-const defaultBpm = 600;
+const defaultBpm = 999;
 
 // Default MIDI parameters
 const defaultMinMidi = 36;
@@ -42,12 +54,19 @@ const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
 
 const App = () => {
   // Data state variables
-  const [{ data, regions, isLoading, isError }, fetchData] = 
+  const [
+    { data, regions, isLoading, isError }, 
+    // fetchData  // commenting out to stop lint errors
+  ] = 
     FetchOwidData(url);
   const [region, setRegion] = useState('');
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(0);
+  const [visualize, setVisualize] = useState(true);
+  const [animation, setAnimation] = useState(false);
+  const [currentAmt, setCurrentAmt] = useState(-1);
+  const [currentDate, setCurrentDate] = useState('');
 
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
@@ -67,45 +86,6 @@ const App = () => {
   });
 
   /**
-   * Sonifies data of selected region
-   */
-  const sonifyData = () => {
-    Tone.Transport.cancel();  // stops previous loop
-
-    // Filter out all invalid data
-    const notes = regionData.map(dateAmount => (
-      isNaN(dateAmount.amount) ? null : Math.floor(mapData(
-        minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
-      ))
-    )).filter(
-      midiNote => midiNote !== null
-    );
-    
-    // Set up pattern to play data
-    var pattern = new Tone.Pattern((time, note) => {
-      synth.current.triggerAttackRelease(Tone.Frequency(note, 'midi'), 0.25);
-            
-      // Stop playback when finished
-      if (pattern.index === pattern.values.length - 1) {
-        Tone.Transport.cancel();
-      }
-    }, notes);
-    
-    pattern.start(0);
-    Tone.Transport.bpm.value = bpm;
-
-    Tone.Transport.start();
-    
-  }
-
-  /**
-   * Plays a single tone with current synth options
-   */
-  const playTestTone = () => {
-    synth.current.triggerAttackRelease(Tone.Frequency(pitch, 'midi'), '8n');
-  }
-
-  /**
    * Updates state variables with region from dropdown
    * @param {string} selectedRegion region from dropdown component
    */
@@ -121,17 +101,22 @@ const App = () => {
   const initializeRegionData = newRegion => {
     let selectedRegionData = [];
     let amounts = [];
+
+    // Populate region data and amounts
+    let key = 0;
     for (var line of data) {
       selectedRegionData.push(
         { 
           date: line['date'], 
-          amount: parseInt(line[newRegion]) 
+          amount: parseInt(line[newRegion]),
+          index: key++
         }
       );
       
       amounts.push(parseInt(line[newRegion])); 
     }
 
+    selectedRegionData.filter(entry => !isNaN(entry.amount));
     setRegionData(selectedRegionData);
     
     let minMax = getMinMax(amounts.filter(
@@ -140,31 +125,86 @@ const App = () => {
 
     setMinAmount(minMax.min);
     setMaxAmount(minMax.max);
-  };  
+  };
 
-  // Handler functions of text inputs for min/max MIDI pitch
-  const handleMinMidiChange = event => {
-    let newMin = parseInt(event.target.value);
-    if (isNaN(newMin)) {
-      return;
-    }
-    setMinMidiPitch(newMin);
+  /**
+   * Maps a point of data to a MIDI note using min/max amounts kept in state
+   * @param {int} amount data to map
+   * @returns {int} MIDI note
+   */
+  function convertEntryToMidi(amount) {
+    let mapped = mapData(minAmount, maxAmount, minMidiPitch, maxMidiPitch, amount);
+    let midi = Math.floor(mapped);
+    return midi;
   }
 
-  const handleMaxMidiChange = event => {
-    let newMax = parseInt(event.target.value);
-    if (isNaN(newMax)) {
-      return;
-    }
-    setMaxMidiPitch(newMax);
+  /**
+   * Sonifies data of selected region
+   */
+  const sonifyData = () => {
+    Tone.Transport.cancel();  // stops previous loop
+
+    // Map region data to objects { note, index }
+    const notes = regionData.map(entry => ({
+      note: convertEntryToMidi(entry.amount),
+      date: entry.date,
+      index: entry.index,
+    })).filter(entry => !isNaN(entry.note));
+    
+    // Set up pattern to play data
+    var pattern = new Tone.Pattern((time, entry) => {
+      synth.current.triggerAttackRelease(Tone.Frequency(entry.note, 'midi'), 0.25);
+      
+      setCurrentAmt(regionData[entry.index].amount);
+      setCurrentDate(entry.date);
+
+      // Stop playback when finished
+      if (pattern.index === pattern.values.length - 1) {
+        Tone.Transport.cancel();
+      }
+    }, notes);
+    
+    pattern.start(0);
+    Tone.Transport.bpm.value = bpm;
+
+    Tone.Transport.start();
   }
 
-  const handleBpmChange = event => {
-    let newBpm = parseInt(event.target.value);
-    if (isNaN(newBpm)) {
+  /**
+   * Sanitizes region data for visualiation in react-vis
+   * @param {Array} regionData region data containing objects { date, amount, index }
+   * @returns an array of objects { x, y, color }
+   */
+  const sanitizeData = regionData => {
+    const data = regionData.filter(entry => !isNaN(entry.amount)).map(
+      entry => ({
+        x: entry.index,
+        y: entry.amount,
+        color: entry.amount === currentAmt ? 0 : 1,
+      })
+    );
+    
+    return data;
+  }
+
+  /**
+   * Plays a single tone with current synth options
+   */
+  const playMidiNote = midiNote => {
+    synth.current.triggerAttackRelease(Tone.Frequency(midiNote, 'midi'), '8n');
+  }  
+
+  /**
+   * Insures only numerical inputs are processed
+   * @param {Object} event event from React-Bootstrap form input 
+   * @param {Function} setStateFunction function to set state with new event value
+   */
+  const handleInput = (event, setStateFunction) => {
+    let newValue = parseInt(event.target.value);
+    if (isNaN(newValue)) {
       return;
     }
-    setBpm(newBpm);
+    setStateFunction(newValue);
   }
 
   let key = 0;
@@ -177,35 +217,74 @@ const App = () => {
       <p>{isError ? 'An error occurred.' : null}</p>
       
       <p>Min/max amount: {minAmount}/{maxAmount}</p>
+      <p>Current amount: {currentAmt === -1 ? 'None' : `${currentAmt} cases at ${currentDate}`}</p>
 
       <h4>Current region: {region}</h4>
-      <RegionDropdown regions={regions} callback={initializeRegion} />
       
+
+      <ButtonGroup>
+        <RegionDropdown regions={regions} callback={initializeRegion} />
+        <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
+        <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
+      </ButtonGroup>
+      <br />
+
+      {/* Play/stop buttons when region data is selected */}
       {
         regionData.length === 0 
           ? null 
           : (
-              <div>
-                <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>Play</Button>
-                <Button variant='danger' onClick={() => Tone.Transport.cancel()}>Stop</Button>
-              </div>
-             )
+              <ButtonGroup>
+                <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>
+                  Play
+                </Button>
+                <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
+                  Stop
+                </Button>
+              </ButtonGroup>
+            )
       }
 
+      {/* Data visualization */}
+      {visualize && 
+        <FlexibleWidthXYPlot 
+          height={400}
+          onMouseLeave={() => setCurrentAmt(-1)}
+          colorRange={['yellow', 'cornflowerblue']}
+          animation={animation}
+        >
+          <HorizontalGridLines style={{stroke: '#B7E9ED'}} />
+          <VerticalGridLines style={{stroke: '#B7E9ED'}} />
+
+          <VerticalBarSeries
+            data={sanitizeData(regionData)}
+            onNearestX={(entry, {index}) => {
+              setCurrentAmt(entry.y);
+              setCurrentDate(regionData[index].date);
+            }}
+            onValueClick={entry => {
+              playMidiNote(convertEntryToMidi(entry.y));
+            }}
+          />
+
+          <XAxis title="Days since December 31, 2019" />
+          <YAxis title="Total amount of cases" left={50} />
+        </FlexibleWidthXYPlot>
+      }
 
       { /* tone js stuff */}
       <h3>Options:</h3>
       
-      <Button variant="info" onClick={playTestTone}>Play test pitch</Button>
+      <Button variant="info" onClick={() => playMidiNote(pitch)}>Play test pitch</Button>
       <br />
       <br />
       
       <ButtonGroup aria-label='Increase/decrease pitch'>
-        <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>
-          Increase pitch
-        </Button>
         <Button variant='secondary' onClick={() => setPitch(pitch - 1)}>
           Decrease pitch
+        </Button>
+        <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>
+          Increase pitch
         </Button>
       </ButtonGroup>
       <p>The current MIDI pitch is: <strong>{pitch}</strong></p>
@@ -219,9 +298,6 @@ const App = () => {
       <p>The current oscillator is: <strong>{oscTypes[oscSelection]}</strong></p>
       <br />
 
-      
-      
-
       {/* Min MIDI pitch input */}
       <InputGroup>
         <InputGroup.Prepend>
@@ -230,7 +306,7 @@ const App = () => {
         <FormControl 
           placeholder='Ex: 0'
           aria-label='Minimum MIDI pitch'
-          onChange={handleMinMidiChange}
+          onChange={(event) => handleInput(event, setMinMidiPitch)}
         />
       </InputGroup>
 
@@ -242,7 +318,7 @@ const App = () => {
         <FormControl
           placeholder='Ex: 127'
           aria-label='Maximum MIDI pitch'
-          onChange={handleMaxMidiChange}
+          onChange={(event) => handleInput(event, setMaxMidiPitch)}
         />
       </InputGroup>
 
@@ -258,7 +334,7 @@ const App = () => {
         <FormControl
           placeholder='Ex: 200'
           aria-label='BPM'
-          onChange={handleBpmChange}
+          onChange={(event) => handleInput(event, setBpm)}
         />
       </InputGroup>
       <p>
@@ -266,18 +342,20 @@ const App = () => {
       </p>
       
       {/* Data (actual / MIDI) */}
-      {/* <ul>
-        {
-          regionData.map(dateAmount => (
+      {regionData.length !== 0 && (<h2>Raw data</h2>)}
+      <ul>
+        {regionData.length !== 0 &&
+          regionData.map(entry => (
             <li key={key++} >
-              {dateAmount.date}: <strong>{isNaN(dateAmount.amount) ? 'No data' : dateAmount.amount}</strong> 
-              (MIDI: {isNaN(dateAmount.amount) ? '' : Math.floor(mapData(
-                  minAmount, maxAmount, minMidiPitch, maxMidiPitch, dateAmount.amount
-                ))})
+              {entry.date}: <strong>{
+                isNaN(entry.amount) 
+                  ? 'No data' 
+                  : entry.amount
+              }</strong> 
             </li>
           ))
         }
-      </ul> */}
+      </ul>
 
     </div>
   )
