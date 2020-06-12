@@ -10,7 +10,6 @@ import {
   XAxis, 
   YAxis, 
   VerticalBarSeries, 
-  Crosshair,
   HorizontalGridLines,
   VerticalGridLines,
 } from 'react-vis';
@@ -63,6 +62,7 @@ const App = () => {
   const [maxAmount, setMaxAmount] = useState(0);
   const [visualize, setVisualize] = useState(true);
   const [currentAmt, setCurrentAmt] = useState(-1);
+  const [currentDate, setCurrentDate] = useState('');
 
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
@@ -90,6 +90,7 @@ const App = () => {
     // Map region data to objects { note, index }
     const notes = regionData.map(entry => ({
       note: Math.floor(mapData(minAmount, maxAmount, minMidiPitch, maxMidiPitch, entry.amount)),
+      date: entry.date,
       index: entry.index,
     })).filter(entry => !isNaN(entry.note));
     
@@ -98,6 +99,7 @@ const App = () => {
       synth.current.triggerAttackRelease(Tone.Frequency(entry.note, 'midi'), 0.25);
       
       setCurrentAmt(regionData[entry.index].amount);
+      setCurrentDate(entry.date);
 
       // Stop playback when finished
       if (pattern.index === pattern.values.length - 1) {
@@ -200,7 +202,7 @@ const App = () => {
       <p>{isError ? 'An error occurred.' : null}</p>
       
       <p>Min/max amount: {minAmount}/{maxAmount}</p>
-      <p>Current amount: {currentAmt === -1 ? 'None' : currentAmt}</p>
+      <p>Current amount: {currentAmt === -1 ? 'None' : `${currentAmt} cases at ${currentDate}`}</p>
 
       <h4>Current region: {region}</h4>
       <RegionDropdown regions={regions} callback={initializeRegion} />
@@ -237,6 +239,7 @@ const App = () => {
             data={sanitizeData(regionData)}
             onNearestX={(entry, {index}) => {
               setCurrentAmt(entry.y);
+              setCurrentDate(regionData[index].date);
             }}
           />
 
