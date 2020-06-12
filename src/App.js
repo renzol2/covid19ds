@@ -12,7 +12,6 @@ import {
   VerticalBarSeries, 
   HorizontalGridLines,
   VerticalGridLines,
-  Highlight
 } from 'react-vis';
 
 // React-Bootstrap imports
@@ -55,7 +54,10 @@ const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
 
 const App = () => {
   // Data state variables
-  const [{ data, regions, isLoading, isError }, fetchData] = 
+  const [
+    { data, regions, isLoading, isError }, 
+    // fetchData  // commenting out to stop lint errors
+  ] = 
     FetchOwidData(url);
   const [region, setRegion] = useState('');
   const [regionData, setRegionData] = useState([]);
