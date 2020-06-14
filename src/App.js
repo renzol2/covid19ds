@@ -52,7 +52,7 @@ const oscTypes = [
 // URL to fetch data
 const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
 
-const App = () => {
+function App() {
   // Data state variables
   const [
     { data, regions, isLoading, isError }, 
@@ -89,7 +89,7 @@ const App = () => {
    * Updates state variables with region from dropdown
    * @param {string} selectedRegion region from dropdown component
    */
-  const initializeRegion = (selectedRegion) => {
+  function initializeRegion(selectedRegion) {
     setRegion(selectedRegion);
     initializeRegionData(selectedRegion);
   };
@@ -98,7 +98,7 @@ const App = () => {
    * Sets region data and min/max pitches using region data
    * @param {string} newRegion selected region from dropdown
    */
-  const initializeRegionData = newRegion => {
+  function initializeRegionData(newRegion) {
     let selectedRegionData = [];
     let amounts = [];
 
@@ -141,7 +141,7 @@ const App = () => {
   /**
    * Sonifies data of selected region
    */
-  const sonifyData = () => {
+  function sonifyData() {
     Tone.Transport.cancel();  // stops previous loop
 
     // Map region data to objects { note, index }
