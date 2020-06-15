@@ -7,7 +7,7 @@ import Papa from 'papaparse';
 
   Modeled after: https://www.robinwieruch.de/react-hooks-fetch-data
 */
-const FetchOwidData = (initUrl) => {
+function FetchOwidData(initUrl) {
   const [url, setUrl] = useState(initUrl);
   const [data, setData] = useState([]);
   const [regions, setRegions] = useState([]);
