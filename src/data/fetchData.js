@@ -1,11 +1,14 @@
 import {useState, useEffect} from 'react';
 import Papa from 'papaparse';
 
-/*
+/**
   Fetches data from Our World In Data at the requested URL.
   Amount specifies how many lines of CSV file to parse.
 
   Modeled after: https://www.robinwieruch.de/react-hooks-fetch-data
+
+  @param initUrl initial url to fetch data from
+  @return array containing state pertaining to data
 */
 function FetchOwidData(initUrl) {
   const [url, setUrl] = useState(initUrl);
