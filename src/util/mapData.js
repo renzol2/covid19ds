@@ -1,10 +1,10 @@
 /**
  * Maps a point of data from one set of bounds to another
- * @param {int} low1 lower bound of range 1
- * @param {int} high1 upper bound of range 1
- * @param {int} low2 lower bound of range 2
- * @param {int} high2 upper bound of range 2
- * @param {int} point point in range 1 to map from range 1 to range 2
+ * @param {number} low1 lower bound of range 1
+ * @param {number} high1 upper bound of range 1
+ * @param {number} low2 lower bound of range 2
+ * @param {number} high2 upper bound of range 2
+ * @param {number} point point in range 1 to map from range 1 to range 2
  */
 const mapData = (low1, high1, low2, high2, point) => {
   let range1 = high1 - low1;

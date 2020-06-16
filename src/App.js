@@ -61,8 +61,8 @@ function App() {
   const [
     { data, regions, isLoading, isError }, 
     // fetchData  // commenting out to stop lint errors
-  ] = 
-    FetchOwidData(url);
+  ] = FetchOwidData(url);
+
   const [region, setRegion] = useState('');
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
@@ -133,8 +133,8 @@ function App() {
 
   /**
    * Maps a point of data to a MIDI note using min/max amounts kept in state
-   * @param {int} amount data to map
-   * @returns {int} MIDI note
+   * @param {number} amount data to map
+   * @returns {number} MIDI note
    */
   function convertEntryToMidi(amount) {
     let mapped = mapData(minAmount, maxAmount, minMidiPitch, maxMidiPitch, amount);
@@ -193,7 +193,7 @@ function App() {
 
   /**
    * Plays the given MIDI note using the synth and its current settings
-   * @param {int} midiNote 
+   * @param {number} midiNote 
    */
   function playMidiNote(midiNote) {
     synth.current.triggerAttackRelease(Tone.Frequency(midiNote, 'midi'), '8n');
