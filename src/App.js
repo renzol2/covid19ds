@@ -175,7 +175,7 @@ function App() {
    * @param {Array} regionData region data containing objects { date, amount, index }
    * @returns an array of objects { x, y, color }
    */
-  const sanitizeData = regionData => {
+  function sanitizeData(regionData) {
     const data = regionData.filter(entry => !isNaN(entry.amount)).map(
       entry => ({
         x: entry.index,
@@ -188,18 +188,21 @@ function App() {
   }
 
   /**
-   * Plays a single tone with current synth options
+   * Plays the given MIDI note using the synth and its current settings
+   * @param {int} midiNote 
    */
-  const playMidiNote = midiNote => {
+  function playMidiNote(midiNote) {
     synth.current.triggerAttackRelease(Tone.Frequency(midiNote, 'midi'), '8n');
   }  
 
   /**
+   * Handles numerical input for visualization/sonification parameters (state)
    * Insures only numerical inputs are processed
+   * 
    * @param {Object} event event from React-Bootstrap form input 
    * @param {Function} setStateFunction function to set state with new event value
    */
-  const handleInput = (event, setStateFunction) => {
+  function handleInput(event, setStateFunction) {
     let newValue = parseInt(event.target.value);
     if (isNaN(newValue)) {
       return;
