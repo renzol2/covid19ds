@@ -30,6 +30,7 @@ import RegionDropdown from './components/regionDropdown';
 import BpmInput from './components/bpmInput';
 import OscillatorToggleButton from './components/toggleOscButton';
 import PitchButtonGroup from './components/pitchChange';
+import MinMaxMidiInput from './components/minMaxMidiInput';
 
 // Default pitch
 const defaultPitch = 60;
@@ -296,30 +297,11 @@ function App() {
       <p>The current oscillator is: <strong>{oscTypes[oscSelection]}</strong></p>
       <br />
 
-      {/* Min MIDI pitch input */}
-      <InputGroup>
-        <InputGroup.Prepend>
-          <InputGroup.Text>Minimum MIDI pitch</InputGroup.Text>
-        </InputGroup.Prepend>
-        <FormControl 
-          placeholder='Ex: 0'
-          aria-label='Minimum MIDI pitch'
-          onChange={(event) => handleInput(event, setMinMidiPitch)}
-        />
-      </InputGroup>
-
-      {/* Max MIDI pitch input */}
-      <InputGroup>
-        <InputGroup.Prepend>
-          <InputGroup.Text>Maximum MIDI pitch</InputGroup.Text>
-        </InputGroup.Prepend>
-        <FormControl
-          placeholder='Ex: 127'
-          aria-label='Maximum MIDI pitch'
-          onChange={(event) => handleInput(event, setMaxMidiPitch)}
-        />
-      </InputGroup>
-
+      <MinMaxMidiInput
+        handleInput={handleInput}
+        setMinMidiPitch={setMinMidiPitch}
+        setMaxMidiPitch={setMaxMidiPitch}
+      />
       <p>
         Min/max MIDI pitch: <strong>[{minMidiPitch}, {maxMidiPitch}]</strong>
       </p>
