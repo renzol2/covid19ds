@@ -6,9 +6,9 @@ import PropTypes from 'prop-types';
 /**
  * Allows user to change sonification playback BPM
  * 
- * @param {number} props.bpm BPM state of application to be displayed
+ * @param {number} props.bpm         BPM state of application to be displayed
  * @param {func}   props.handleInput function that handles numerical state change
- * @param {func}   props.setBpm function that sets BPM state of application
+ * @param {func}   props.setBpm      function that sets BPM state of application
  */
 class BpmInput extends Component {
   render() {

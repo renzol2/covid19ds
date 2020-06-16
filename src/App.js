@@ -29,6 +29,7 @@ import mapData from './util/mapData';
 import RegionDropdown from './components/regionDropdown';
 import BpmInput from './components/bpmInput';
 import OscillatorToggleButton from './components/toggleOscButton';
+import PitchButtonGroup from './components/pitchChange';
 
 // Default pitch
 const defaultPitch = 60;
@@ -284,16 +285,8 @@ function App() {
       <br />
       <br />
       
-      <ButtonGroup aria-label='Increase/decrease pitch'>
-        <Button variant='secondary' onClick={() => setPitch(pitch - 1)}>
-          Decrease pitch
-        </Button>
-        <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>
-          Increase pitch
-        </Button>
-      </ButtonGroup>
+      <PitchButtonGroup setPitch={setPitch} pitch={pitch} />
       <p>The current MIDI pitch is: <strong>{pitch}</strong></p>
-      
       
       <OscillatorToggleButton 
         setOscSelection={setOscSelection}

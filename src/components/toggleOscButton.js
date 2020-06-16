@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
  * Toggles through the app's oscillator types
  * 
  * @param {func}   props.setOscSelection function that sets oscSelection state
- * @param {number} props.oscSelection state that represents selected oscillator from oscTypes
- * @param {array}  props.oscTypes array that holds names of different oscillator types
+ * @param {number} props.oscSelection    state that represents selected oscillator from oscTypes
+ * @param {array}  props.oscTypes        array that holds names of different oscillator types
  */
 class OscillatorToggleButton extends Component {
   render() {
