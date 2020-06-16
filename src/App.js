@@ -28,6 +28,7 @@ import mapData from './util/mapData';
 // Components
 import RegionDropdown from './components/regionDropdown';
 import BpmInput from './components/bpmInput';
+import OscillatorToggleButton from './components/toggleOscButton';
 
 // Default pitch
 const defaultPitch = 60;
@@ -294,11 +295,11 @@ function App() {
       <p>The current MIDI pitch is: <strong>{pitch}</strong></p>
       
       
-      <Button variant='primary' onClick={
-        () => setOscSelection((oscSelection + 1) % oscTypes.length)
-      }>
-        Toggle oscillator
-      </Button>
+      <OscillatorToggleButton 
+        setOscSelection={setOscSelection}
+        oscSelection={oscSelection}
+        oscTypes={oscTypes}
+      />
       <p>The current oscillator is: <strong>{oscTypes[oscSelection]}</strong></p>
       <br />
 
