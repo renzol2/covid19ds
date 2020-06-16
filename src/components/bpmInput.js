@@ -14,7 +14,9 @@ class BpmInput extends Component {
             placeholder='Ex: 200'
             aria-label='BPM'
             onChange={
-              (event) => this.handleInput(event, this.setBpm)
+              (event) => this.props.handleInput(
+                event, this.props.setBpm
+              )
             }
           />
         </InputGroup>

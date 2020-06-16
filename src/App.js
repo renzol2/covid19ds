@@ -27,6 +27,7 @@ import mapData from './util/mapData';
 
 // Components
 import RegionDropdown from './components/regionDropdown';
+import BpmInput from './components/bpmInput';
 
 // Default pitch
 const defaultPitch = 60;
@@ -330,19 +331,7 @@ function App() {
       </p>
 
       {/* BPM input */}
-      <InputGroup>
-        <InputGroup.Prepend>
-          <InputGroup.Text>Playback BPM</InputGroup.Text>
-        </InputGroup.Prepend>
-        <FormControl
-          placeholder='Ex: 200'
-          aria-label='BPM'
-          onChange={(event) => handleInput(event, setBpm)}
-        />
-      </InputGroup>
-      <p>
-        Current BPM: <strong>{bpm}</strong>
-      </p>
+      <BpmInput bpm={bpm} setBpm={setBpm} handleInput={handleInput} />
       
       {/* Data (actual / MIDI) */}
       {regionData.length !== 0 && (<h2>Raw data</h2>)}
