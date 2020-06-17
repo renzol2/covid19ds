@@ -203,11 +203,15 @@ function App() {
     setStateFunction(newValue);
   }
 
+  /**
+   * Return statement
+   */
   let key = 0;
   return (
     <div className='body'>
       <h1>COVID-19 Data Sonification</h1>
-      {/* covid19 data stuff */}
+
+      {/* Data information */}
       <h3>Display data:</h3>
       <p>{isLoading ? 'Loading data...' : null}</p>
       <p>{isError ? 'An error occurred.' : null}</p>
@@ -217,28 +221,24 @@ function App() {
 
       <h4>Current region: {region}</h4>
       
-
       <ButtonGroup>
         <RegionDropdown regions={regions} callback={initializeRegion} />
         <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
         <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
       </ButtonGroup>
-      <br />
 
       {/* Play/stop buttons when region data is selected */}
-      {
-        regionData.length === 0 
-          ? null 
-          : (
-              <ButtonGroup>
-                <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>
-                  Play
-                </Button>
-                <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
-                  Stop
-                </Button>
-              </ButtonGroup>
-            )
+      {regionData.length !== 0 && 
+        (
+          <ButtonGroup>
+            <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>
+              Play
+            </Button>
+            <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
+              Stop
+            </Button>
+          </ButtonGroup>
+        )
       }
 
       {/* Data visualization */}
@@ -248,6 +248,7 @@ function App() {
         animation={animation}
         colorRange={['yellow', 'cornflowerblue']}
         gridLineColor={'#B7E9ED'}
+
         data={sanitizeData(regionData)}
         onMouseLeave={() => setCurrentAmt(-1)}
         onNearestX={(entry, {index}) => {
@@ -257,12 +258,13 @@ function App() {
         onValueClick={entry => {
           playMidiNote(convertEntryToMidi(entry.y));
         }}
+
         xAxisTitle={'Days since December 31, 2019'}
         yAxisTitle={'Total amount of cases'}
         yAxisLeft={50}
       />
 
-      { /* tone js stuff */}
+      { /* Sonification parameters */}
       <h3>Options:</h3>
       
       <Button variant="info" onClick={() => playMidiNote(pitch)}>Play test pitch</Button>
