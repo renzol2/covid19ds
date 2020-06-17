@@ -1,3 +1,9 @@
+# COVID-19 Data Sonification
+
+This project is a remake of my final project from the Software Design Studio course (CS 126) at UIUC. The original project was built using C++ and Cinder, but I wanted to make a web app version to share and learn how to use React.
+
+Project is still under development, but you can view my progress at https://renzol2.github.io/covid19ds.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

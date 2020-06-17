@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import Dropdown from 'react-bootstrap/Dropdown';
+import PropTypes from 'prop-types';
 import './regionDropdown.css';
 
 // Search function for dropdown taken from:
@@ -58,8 +59,8 @@ const RegionMenu = React.forwardRef(
 
 /**
  * Dropdown that displays regions and sends selection to parent component
- * @param regions array of region names (strings)
- * @param callback function from parent component that returns selected region 
+ * @param {Array} regions array of region names (strings)
+ * @param {func} callback function from parent component that returns selected region 
  */
 const RegionDropdown = ({regions, callback}) => {
   const [region, setRegion] = useState('');
@@ -94,6 +95,11 @@ const RegionDropdown = ({regions, callback}) => {
         </Dropdown>
       </div>
   );
+}
+
+RegionDropdown.propTypes = {
+  regions: PropTypes.array.isRequired,
+  callback: PropTypes.func.isRequired,
 }
 
 export default RegionDropdown;

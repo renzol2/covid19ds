@@ -4,21 +4,9 @@ import './App.css';
 // Tone.js imports
 import * as Tone from 'tone';
 
-// react-vis imports
-import {
-  FlexibleWidthXYPlot, 
-  XAxis, 
-  YAxis, 
-  VerticalBarSeries, 
-  HorizontalGridLines,
-  VerticalGridLines,
-} from 'react-vis';
-
 // React-Bootstrap imports
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import InputGroup from 'react-bootstrap/InputGroup';
-import FormControl from 'react-bootstrap/FormControl';
 
 // Function imports
 import FetchOwidData from './data/fetchData';
@@ -27,6 +15,11 @@ import mapData from './util/mapData';
 
 // Components
 import RegionDropdown from './components/regionDropdown';
+import DataGraph from './components/dataGraph';
+import BpmInput from './components/bpmInput';
+import OscillatorToggleButton from './components/toggleOscButton';
+import PitchButtonGroup from './components/pitchChange';
+import MinMaxMidiInput from './components/minMaxMidiInput';
 
 // Default pitch
 const defaultPitch = 60;
@@ -57,8 +50,8 @@ function App() {
   const [
     { data, regions, isLoading, isError }, 
     // fetchData  // commenting out to stop lint errors
-  ] = 
-    FetchOwidData(url);
+  ] = FetchOwidData(url);
+
   const [region, setRegion] = useState('');
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
@@ -129,8 +122,8 @@ function App() {
 
   /**
    * Maps a point of data to a MIDI note using min/max amounts kept in state
-   * @param {int} amount data to map
-   * @returns {int} MIDI note
+   * @param {number} amount data to map
+   * @returns {number} MIDI note
    */
   function convertEntryToMidi(amount) {
     let mapped = mapData(minAmount, maxAmount, minMidiPitch, maxMidiPitch, amount);
@@ -173,9 +166,9 @@ function App() {
   /**
    * Sanitizes region data for visualiation in react-vis
    * @param {Array} regionData region data containing objects { date, amount, index }
-   * @returns an array of objects { x, y, color }
+   * @returns {Array} an array of objects { x, y, color }
    */
-  const sanitizeData = regionData => {
+  function sanitizeData(regionData) {
     const data = regionData.filter(entry => !isNaN(entry.amount)).map(
       entry => ({
         x: entry.index,
@@ -188,18 +181,21 @@ function App() {
   }
 
   /**
-   * Plays a single tone with current synth options
+   * Plays the given MIDI note using the synth and its current settings
+   * @param {number} midiNote 
    */
-  const playMidiNote = midiNote => {
+  function playMidiNote(midiNote) {
     synth.current.triggerAttackRelease(Tone.Frequency(midiNote, 'midi'), '8n');
   }  
 
   /**
+   * Handles numerical input for visualization/sonification parameters (state)
    * Insures only numerical inputs are processed
+   * 
    * @param {Object} event event from React-Bootstrap form input 
    * @param {Function} setStateFunction function to set state with new event value
    */
-  const handleInput = (event, setStateFunction) => {
+  function handleInput(event, setStateFunction) {
     let newValue = parseInt(event.target.value);
     if (isNaN(newValue)) {
       return;
@@ -207,11 +203,15 @@ function App() {
     setStateFunction(newValue);
   }
 
+  /**
+   * Return statement
+   */
   let key = 0;
   return (
     <div className='body'>
       <h1>COVID-19 Data Sonification</h1>
-      {/* covid19 data stuff */}
+
+      {/* Data information */}
       <h3>Display data:</h3>
       <p>{isLoading ? 'Loading data...' : null}</p>
       <p>{isError ? 'An error occurred.' : null}</p>
@@ -221,125 +221,78 @@ function App() {
 
       <h4>Current region: {region}</h4>
       
-
       <ButtonGroup>
         <RegionDropdown regions={regions} callback={initializeRegion} />
         <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
         <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
       </ButtonGroup>
-      <br />
 
       {/* Play/stop buttons when region data is selected */}
-      {
-        regionData.length === 0 
-          ? null 
-          : (
-              <ButtonGroup>
-                <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>
-                  Play
-                </Button>
-                <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
-                  Stop
-                </Button>
-              </ButtonGroup>
-            )
+      {regionData.length !== 0 && 
+        (
+          <ButtonGroup>
+            <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>
+              Play
+            </Button>
+            <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
+              Stop
+            </Button>
+          </ButtonGroup>
+        )
       }
 
       {/* Data visualization */}
-      {visualize && 
-        <FlexibleWidthXYPlot 
-          height={400}
-          onMouseLeave={() => setCurrentAmt(-1)}
-          colorRange={['yellow', 'cornflowerblue']}
-          animation={animation}
-        >
-          <HorizontalGridLines style={{stroke: '#B7E9ED'}} />
-          <VerticalGridLines style={{stroke: '#B7E9ED'}} />
+      <DataGraph
+        visualize={visualize}
+        height={400}
+        animation={animation}
+        colorRange={['yellow', 'cornflowerblue']}
+        gridLineColor={'#B7E9ED'}
 
-          <VerticalBarSeries
-            data={sanitizeData(regionData)}
-            onNearestX={(entry, {index}) => {
-              setCurrentAmt(entry.y);
-              setCurrentDate(regionData[index].date);
-            }}
-            onValueClick={entry => {
-              playMidiNote(convertEntryToMidi(entry.y));
-            }}
-          />
+        data={sanitizeData(regionData)}
+        onMouseLeave={() => setCurrentAmt(-1)}
+        onNearestX={(entry, {index}) => {
+          setCurrentAmt(entry.y);
+          setCurrentDate(regionData[index].date);
+        }}
+        onValueClick={entry => {
+          playMidiNote(convertEntryToMidi(entry.y));
+        }}
 
-          <XAxis title="Days since December 31, 2019" />
-          <YAxis title="Total amount of cases" left={50} />
-        </FlexibleWidthXYPlot>
-      }
+        xAxisTitle={'Days since December 31, 2019'}
+        yAxisTitle={'Total amount of cases'}
+        yAxisLeft={50}
+      />
 
-      { /* tone js stuff */}
+      { /* Sonification parameters */}
       <h3>Options:</h3>
       
       <Button variant="info" onClick={() => playMidiNote(pitch)}>Play test pitch</Button>
       <br />
       <br />
       
-      <ButtonGroup aria-label='Increase/decrease pitch'>
-        <Button variant='secondary' onClick={() => setPitch(pitch - 1)}>
-          Decrease pitch
-        </Button>
-        <Button variant='secondary' onClick={() => setPitch(pitch + 1)}>
-          Increase pitch
-        </Button>
-      </ButtonGroup>
+      <PitchButtonGroup setPitch={setPitch} pitch={pitch} />
       <p>The current MIDI pitch is: <strong>{pitch}</strong></p>
       
-      
-      <Button variant='primary' onClick={
-        () => setOscSelection((oscSelection + 1) % oscTypes.length)
-      }>
-        Toggle oscillator
-      </Button>
+      <OscillatorToggleButton 
+        setOscSelection={setOscSelection}
+        oscSelection={oscSelection}
+        oscTypes={oscTypes}
+      />
       <p>The current oscillator is: <strong>{oscTypes[oscSelection]}</strong></p>
       <br />
 
-      {/* Min MIDI pitch input */}
-      <InputGroup>
-        <InputGroup.Prepend>
-          <InputGroup.Text>Minimum MIDI pitch</InputGroup.Text>
-        </InputGroup.Prepend>
-        <FormControl 
-          placeholder='Ex: 0'
-          aria-label='Minimum MIDI pitch'
-          onChange={(event) => handleInput(event, setMinMidiPitch)}
-        />
-      </InputGroup>
-
-      {/* Max MIDI pitch input */}
-      <InputGroup>
-        <InputGroup.Prepend>
-          <InputGroup.Text>Maximum MIDI pitch</InputGroup.Text>
-        </InputGroup.Prepend>
-        <FormControl
-          placeholder='Ex: 127'
-          aria-label='Maximum MIDI pitch'
-          onChange={(event) => handleInput(event, setMaxMidiPitch)}
-        />
-      </InputGroup>
-
+      <MinMaxMidiInput
+        handleInput={handleInput}
+        setMinMidiPitch={setMinMidiPitch}
+        setMaxMidiPitch={setMaxMidiPitch}
+      />
       <p>
         Min/max MIDI pitch: <strong>[{minMidiPitch}, {maxMidiPitch}]</strong>
       </p>
 
       {/* BPM input */}
-      <InputGroup>
-        <InputGroup.Prepend>
-          <InputGroup.Text>Playback BPM</InputGroup.Text>
-        </InputGroup.Prepend>
-        <FormControl
-          placeholder='Ex: 200'
-          aria-label='BPM'
-          onChange={(event) => handleInput(event, setBpm)}
-        />
-      </InputGroup>
-      <p>
-        Current BPM: <strong>{bpm}</strong>
-      </p>
+      <BpmInput bpm={bpm} setBpm={setBpm} handleInput={handleInput} />
       
       {/* Data (actual / MIDI) */}
       {regionData.length !== 0 && (<h2>Raw data</h2>)}
