@@ -4,21 +4,9 @@ import './App.css';
 // Tone.js imports
 import * as Tone from 'tone';
 
-// react-vis imports
-import {
-  FlexibleWidthXYPlot, 
-  XAxis, 
-  YAxis, 
-  VerticalBarSeries, 
-  HorizontalGridLines,
-  VerticalGridLines,
-} from 'react-vis';
-
 // React-Bootstrap imports
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import InputGroup from 'react-bootstrap/InputGroup';
-import FormControl from 'react-bootstrap/FormControl';
 
 // Function imports
 import FetchOwidData from './data/fetchData';
@@ -27,6 +15,7 @@ import mapData from './util/mapData';
 
 // Components
 import RegionDropdown from './components/regionDropdown';
+import DataGraph from './components/dataGraph';
 import BpmInput from './components/bpmInput';
 import OscillatorToggleButton from './components/toggleOscButton';
 import PitchButtonGroup from './components/pitchChange';
@@ -177,7 +166,7 @@ function App() {
   /**
    * Sanitizes region data for visualiation in react-vis
    * @param {Array} regionData region data containing objects { date, amount, index }
-   * @returns an array of objects { x, y, color }
+   * @returns {Array} an array of objects { x, y, color }
    */
   function sanitizeData(regionData) {
     const data = regionData.filter(entry => !isNaN(entry.amount)).map(
@@ -253,31 +242,25 @@ function App() {
       }
 
       {/* Data visualization */}
-      {visualize && 
-        <FlexibleWidthXYPlot 
-          height={400}
-          onMouseLeave={() => setCurrentAmt(-1)}
-          colorRange={['yellow', 'cornflowerblue']}
-          animation={animation}
-        >
-          <HorizontalGridLines style={{stroke: '#B7E9ED'}} />
-          <VerticalGridLines style={{stroke: '#B7E9ED'}} />
-
-          <VerticalBarSeries
-            data={sanitizeData(regionData)}
-            onNearestX={(entry, {index}) => {
-              setCurrentAmt(entry.y);
-              setCurrentDate(regionData[index].date);
-            }}
-            onValueClick={entry => {
-              playMidiNote(convertEntryToMidi(entry.y));
-            }}
-          />
-
-          <XAxis title="Days since December 31, 2019" />
-          <YAxis title="Total amount of cases" left={50} />
-        </FlexibleWidthXYPlot>
-      }
+      <DataGraph
+        visualize={visualize}
+        height={400}
+        animation={animation}
+        colorRange={['yellow', 'cornflowerblue']}
+        gridLineColor={'#B7E9ED'}
+        data={sanitizeData(regionData)}
+        onMouseLeave={() => setCurrentAmt(-1)}
+        onNearestX={(entry, {index}) => {
+          setCurrentAmt(entry.y);
+          setCurrentDate(regionData[index].date);
+        }}
+        onValueClick={entry => {
+          playMidiNote(convertEntryToMidi(entry.y));
+        }}
+        xAxisTitle={'Days since December 31, 2019'}
+        yAxisTitle={'Total amount of cases'}
+        yAxisLeft={50}
+      />
 
       { /* tone js stuff */}
       <h3>Options:</h3>
