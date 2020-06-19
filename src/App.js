@@ -64,7 +64,7 @@ function App() {
     { data, regions, isLoading, isError }, 
     // fetchData  // commenting out to stop lint errors
   ] = FetchOwidData(url);
-
+  const [dataset, setDataset] = useState('');
   const [region, setRegion] = useState('');
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
@@ -231,12 +231,13 @@ function App() {
       
       <p>Min/max amount: {minAmount}/{maxAmount}</p>
       <p>Current amount: {currentAmt === -1 ? 'None' : `${currentAmt} cases at ${currentDate}`}</p>
+      <p>Dataset URL: {dataset}</p>
 
       <h4>Current region: {region}</h4>
       
       <ButtonGroup>
         <RegionDropdown regions={regions} callback={initializeRegion} />
-        <DataDropdown datasets={datasets} />
+        <DataDropdown datasets={datasets} setDataset={setDataset}/>
         <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
         <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
       </ButtonGroup>

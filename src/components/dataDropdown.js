@@ -4,11 +4,10 @@ import PropTypes from 'prop-types';
 
 class DataDropdown extends Component {
   render() {
+    let key = 0;
     return (
       <Dropdown
-        onSelect={(eventKey) => {
-          console.log(eventKey);
-        }}
+        onSelect={(eventKey) => this.props.setDataset(eventKey)}
       >
         <Dropdown.Toggle id="dropdown-basic">
           Choose data
@@ -16,7 +15,9 @@ class DataDropdown extends Component {
 
         <Dropdown.Menu>
           {this.props.datasets.map(dataset => (
-            <Dropdown.Item eventKey={dataset.url}>{dataset.title}</Dropdown.Item>
+            <Dropdown.Item eventKey={dataset.url} key={key++}>
+              {dataset.title}
+            </Dropdown.Item>
           ))}
         </Dropdown.Menu>
       </Dropdown>
