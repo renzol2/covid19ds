@@ -17,7 +17,7 @@ import mapData from './util/mapData';
 import RegionDropdown from './components/regionDropdown';
 import DataGraph from './components/dataGraph';
 import BpmInput from './components/bpmInput';
-import OscillatorToggleButton from './components/toggleOscButton';
+import OscillatorToggleButton from './components/OscillatorToggleButton';
 import PitchButtonGroup from './components/pitchChange';
 import MinMaxMidiInput from './components/minMaxMidiInput';
 
