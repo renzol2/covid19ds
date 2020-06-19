@@ -26,7 +26,8 @@ class DataDropdown extends Component {
 }
 
 DataDropdown.propTypes = {
-
+  datasets: PropTypes.array.isRequired,
+  onDatasetChange: PropTypes.func.isRequired,
 }
 
 export default DataDropdown;

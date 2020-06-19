@@ -60,10 +60,7 @@ const datasets = [
 
 function App() {
   // Data state variables
-  const [
-    { data, regions, isLoading, isError }, 
-    fetchData
-  ] = FetchOwidData(defaultUrl);
+  const [{ data, regions, isLoading, isError }, fetchData] = FetchOwidData(defaultUrl);
   const [dataset, setDataset] = useState(defaultUrl);
   const [region, setRegion] = useState('');
   const [regionData, setRegionData] = useState([]);
@@ -241,7 +238,7 @@ function App() {
           datasets={datasets}
           onDatasetChange={(eventKey) => {
             setDataset(eventKey);
-            fetchData(eventKey);
+            fetchData(dataset);
             initializeRegion(region);
           }}
         />

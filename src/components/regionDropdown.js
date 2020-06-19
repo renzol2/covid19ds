@@ -63,10 +63,8 @@ const RegionMenu = React.forwardRef(
  * @param {func} callback function from parent component that returns selected region 
  */
 const RegionDropdown = ({regions, callback}) => {
-  const [region, setRegion] = useState('');
 
   const handleChange = event => {
-    setRegion(regions[event]);
     sendRegionToParent(regions[event]);
   }
 
