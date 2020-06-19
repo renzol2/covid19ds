@@ -7,7 +7,7 @@ class DataDropdown extends Component {
     let key = 0;
     return (
       <Dropdown
-        onSelect={(eventKey) => this.props.setDataset(eventKey)}
+        onSelect={this.props.onDatasetChange}
       >
         <Dropdown.Toggle id="dropdown-basic">
           Choose data

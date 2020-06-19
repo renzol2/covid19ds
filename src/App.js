@@ -44,7 +44,7 @@ const oscTypes = [
 ];
 
 // URL to fetch data
-const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
+const defaultUrl = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
 
 // All data
 const datasets = [
@@ -62,9 +62,9 @@ function App() {
   // Data state variables
   const [
     { data, regions, isLoading, isError }, 
-    // fetchData  // commenting out to stop lint errors
-  ] = FetchOwidData(url);
-  const [dataset, setDataset] = useState('');
+    fetchData
+  ] = FetchOwidData(defaultUrl);
+  const [dataset, setDataset] = useState(defaultUrl);
   const [region, setRegion] = useState('');
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
@@ -231,13 +231,20 @@ function App() {
       
       <p>Min/max amount: {minAmount}/{maxAmount}</p>
       <p>Current amount: {currentAmt === -1 ? 'None' : `${currentAmt} cases at ${currentDate}`}</p>
-      <p>Dataset URL: {dataset}</p>
+      <p>Dataset URL: {dataset === '' ? 'None' : dataset}</p>
 
       <h4>Current region: {region}</h4>
       
       <ButtonGroup>
         <RegionDropdown regions={regions} callback={initializeRegion} />
-        <DataDropdown datasets={datasets} setDataset={setDataset}/>
+        <DataDropdown
+          datasets={datasets}
+          onDatasetChange={(eventKey) => {
+            setDataset(eventKey);
+            fetchData(eventKey);
+            initializeRegion(region);
+          }}
+        />
         <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
         <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
       </ButtonGroup>
