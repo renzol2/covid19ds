@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
-import './regionDropdown.css';
+import './RegionDropdown.css';
 
 // Search function for dropdown taken from:
 // https://react-bootstrap.github.io/components/dropdowns/#custom-dropdown-components

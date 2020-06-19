@@ -9,17 +9,17 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 // Function imports
-import FetchOwidData from './data/fetchData';
+import FetchOwidData from './data/FetchOwidData';
 import getMinMax from './util/getMinMax';
 import mapData from './util/mapData';
 
 // Components
-import RegionDropdown from './components/regionDropdown';
-import DataGraph from './components/dataGraph';
-import BpmInput from './components/bpmInput';
-import OscillatorToggleButton from './components/toggleOscButton';
-import PitchButtonGroup from './components/pitchChange';
-import MinMaxMidiInput from './components/minMaxMidiInput';
+import RegionDropdown from './components/RegionDropdown';
+import DataGraph from './components/DataGraph';
+import BpmInput from './components/BpmInput';
+import OscillatorToggleButton from './components/OscillatorToggleButton';
+import PitchButtonGroup from './components/PitchButtonGroup';
+import MinMaxMidiInput from './components/MinMaxMidiInput';
 
 // Default pitch
 const defaultPitch = 60;
