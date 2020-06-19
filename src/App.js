@@ -46,6 +46,18 @@ const oscTypes = [
 // URL to fetch data
 const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
 
+// All data
+const datasets = [
+  {
+    title: 'Total cases',
+    url: 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv',
+  },
+  {
+    title: 'New cases',
+    url: 'https://covid.ourworldindata.org/data/ecdc/new_cases.csv',
+  },
+];
+
 function App() {
   // Data state variables
   const [
@@ -224,7 +236,7 @@ function App() {
       
       <ButtonGroup>
         <RegionDropdown regions={regions} callback={initializeRegion} />
-        <DataDropdown />
+        <DataDropdown datasets={datasets} />
         <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
         <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
       </ButtonGroup>
