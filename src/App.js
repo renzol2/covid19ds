@@ -15,6 +15,7 @@ import mapData from './util/mapData';
 
 // Components
 import RegionDropdown from './components/RegionDropdown';
+import DataDropdown from './components/DataDropdown';
 import DataGraph from './components/DataGraph';
 import BpmInput from './components/BpmInput';
 import OscillatorToggleButton from './components/OscillatorToggleButton';
@@ -223,6 +224,7 @@ function App() {
       
       <ButtonGroup>
         <RegionDropdown regions={regions} callback={initializeRegion} />
+        <DataDropdown />
         <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
         <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
       </ButtonGroup>
@@ -248,7 +250,6 @@ function App() {
         animation={animation}
         colorRange={['yellow', 'cornflowerblue']}
         gridLineColor={'#B7E9ED'}
-
         data={sanitizeData(regionData)}
         onMouseLeave={() => setCurrentAmt(-1)}
         onNearestX={(entry, {index}) => {
