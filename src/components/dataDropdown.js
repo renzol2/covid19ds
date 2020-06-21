@@ -10,10 +10,16 @@ class DataDropdown extends Component {
   }
 
   handleChange(url) {
+    console.log(url);
     this.props.setDataset(url);
     this.props.fetchData(url);
-    this.props.initializeRegion('');
-    this.props.initializeRegion(this.props.region);
+
+    /*
+     FIXME: the function initializeRegion finishes BEFORE the
+     dataset can be downloaded and updated with fetchData. Need to find a way to do a
+     await/async operation with fetchData and initializeRegion.
+     */
+    setTimeout(() => this.props.initializeRegion(this.props.region), 1000);
   }
 
   render() {

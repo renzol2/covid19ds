@@ -180,7 +180,6 @@ function App() {
    * @returns {Array} an array of objects { x, y, color }
    */
   function sanitizeData(regionData) {
-    console.log("sanitizeData -> regionData", regionData)
     const data = regionData.filter(entry => !isNaN(entry.amount)).map(
       entry => ({
         x: entry.index,
