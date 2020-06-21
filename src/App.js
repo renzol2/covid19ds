@@ -53,9 +53,17 @@ const datasets = [
     url: 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv',
   },
   {
+    title: 'Total deaths',
+    url: 'https://covid.ourworldindata.org/data/ecdc/total_deaths.csv'
+  },
+  {
     title: 'New cases',
     url: 'https://covid.ourworldindata.org/data/ecdc/new_cases.csv',
   },
+  {
+    title: 'New deaths',
+    url: 'https://covid.ourworldindata.org/data/ecdc/new_deaths.csv'
+  }
 ];
 
 function App() {
@@ -241,6 +249,7 @@ function App() {
           fetchData={fetchData}
           region={region}
           initializeRegion={initializeRegion}
+          waitTime={600}
         />
         <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
         <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
@@ -278,7 +287,7 @@ function App() {
         }}
 
         xAxisTitle={'Days since December 31, 2019'}
-        yAxisTitle={'Total amount of cases'}
+        yAxisTitle={datasets.filter(dset => dset.url === dataset)[0].title}
         yAxisLeft={50}
       />
 
