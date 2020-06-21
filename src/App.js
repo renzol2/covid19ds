@@ -14,12 +14,12 @@ import getMinMax from './util/getMinMax';
 import mapData from './util/mapData';
 
 // Components
-import RegionDropdown from './components/RegionDropdown';
-import DataDropdown from './components/DataDropdown';
+import RegionDropdown from './components/regionDropdown';
+import DataDropdown from './components/dataDropdown';
 import DataGraph from './components/DataGraph';
 import BpmInput from './components/BpmInput';
 import OscillatorToggleButton from './components/OscillatorToggleButton';
-import PitchButtonGroup from './components/PitchButtonGroup';
+import PitchButtonGroup from './components/pitchChange';
 import MinMaxMidiInput from './components/MinMaxMidiInput';
 
 // Default pitch
