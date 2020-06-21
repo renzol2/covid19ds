@@ -93,6 +93,7 @@ function App() {
    * @param {string} selectedRegion region from dropdown component
    */
   function initializeRegion(selectedRegion) {
+    console.log('init region');
     setRegion(selectedRegion);
     initializeRegionData(selectedRegion);
   };
@@ -179,6 +180,7 @@ function App() {
    * @returns {Array} an array of objects { x, y, color }
    */
   function sanitizeData(regionData) {
+    console.log("sanitizeData -> regionData", regionData)
     const data = regionData.filter(entry => !isNaN(entry.amount)).map(
       entry => ({
         x: entry.index,
@@ -236,11 +238,10 @@ function App() {
         <RegionDropdown regions={regions} callback={initializeRegion} />
         <DataDropdown
           datasets={datasets}
-          onDatasetChange={(eventKey) => {
-            setDataset(eventKey);
-            fetchData(dataset);
-            initializeRegion(region);
-          }}
+          setDataset={setDataset}
+          fetchData={fetchData}
+          region={region}
+          initializeRegion={initializeRegion}
         />
         <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
         <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>

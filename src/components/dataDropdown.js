@@ -3,11 +3,24 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 
 class DataDropdown extends Component {
+  constructor(props) {
+    super(props);
+
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(url) {
+    this.props.setDataset(url);
+    this.props.fetchData(url);
+    this.props.initializeRegion('');
+    this.props.initializeRegion(this.props.region);
+  }
+
   render() {
     let key = 0;
     return (
       <Dropdown
-        onSelect={this.props.onDatasetChange}
+        onSelect={this.handleChange}
       >
         <Dropdown.Toggle id="dropdown-basic">
           Choose data
@@ -27,7 +40,7 @@ class DataDropdown extends Component {
 
 DataDropdown.propTypes = {
   datasets: PropTypes.array.isRequired,
-  onDatasetChange: PropTypes.func.isRequired,
+  setDataset: PropTypes.func.isRequired,
 }
 
 export default DataDropdown;
