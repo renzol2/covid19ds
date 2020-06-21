@@ -9,17 +9,18 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 // Function imports
-import FetchOwidData from './data/fetchData';
+import FetchOwidData from './data/FetchOwidData';
 import getMinMax from './util/getMinMax';
 import mapData from './util/mapData';
 
 // Components
 import RegionDropdown from './components/regionDropdown';
-import DataGraph from './components/dataGraph';
-import BpmInput from './components/bpmInput';
-import OscillatorToggleButton from './components/toggleOscButton';
+import DataDropdown from './components/dataDropdown';
+import DataGraph from './components/DataGraph';
+import BpmInput from './components/BpmInput';
+import OscillatorToggleButton from './components/OscillatorToggleButton';
 import PitchButtonGroup from './components/pitchChange';
-import MinMaxMidiInput from './components/minMaxMidiInput';
+import MinMaxMidiInput from './components/MinMaxMidiInput';
 
 // Default pitch
 const defaultPitch = 60;
@@ -43,15 +44,32 @@ const oscTypes = [
 ];
 
 // URL to fetch data
-const url = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
+const defaultUrl = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
+
+// All data
+const datasets = [
+  {
+    title: 'Total cases',
+    url: 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv',
+  },
+  {
+    title: 'Total deaths',
+    url: 'https://covid.ourworldindata.org/data/ecdc/total_deaths.csv'
+  },
+  {
+    title: 'New cases',
+    url: 'https://covid.ourworldindata.org/data/ecdc/new_cases.csv',
+  },
+  {
+    title: 'New deaths',
+    url: 'https://covid.ourworldindata.org/data/ecdc/new_deaths.csv'
+  }
+];
 
 function App() {
   // Data state variables
-  const [
-    { data, regions, isLoading, isError }, 
-    // fetchData  // commenting out to stop lint errors
-  ] = FetchOwidData(url);
-
+  const [{ data, regions, isLoading, isError }, fetchData] = FetchOwidData(defaultUrl);
+  const [dataset, setDataset] = useState(defaultUrl);
   const [region, setRegion] = useState('');
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
@@ -83,6 +101,7 @@ function App() {
    * @param {string} selectedRegion region from dropdown component
    */
   function initializeRegion(selectedRegion) {
+    console.log('init region');
     setRegion(selectedRegion);
     initializeRegionData(selectedRegion);
   };
@@ -218,11 +237,20 @@ function App() {
       
       <p>Min/max amount: {minAmount}/{maxAmount}</p>
       <p>Current amount: {currentAmt === -1 ? 'None' : `${currentAmt} cases at ${currentDate}`}</p>
+      <p>Dataset URL: {dataset === '' ? 'None' : dataset}</p>
 
       <h4>Current region: {region}</h4>
       
       <ButtonGroup>
         <RegionDropdown regions={regions} callback={initializeRegion} />
+        <DataDropdown
+          datasets={datasets}
+          setDataset={setDataset}
+          fetchData={fetchData}
+          region={region}
+          initializeRegion={initializeRegion}
+          waitTime={600}
+        />
         <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
         <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
       </ButtonGroup>
@@ -248,7 +276,6 @@ function App() {
         animation={animation}
         colorRange={['yellow', 'cornflowerblue']}
         gridLineColor={'#B7E9ED'}
-
         data={sanitizeData(regionData)}
         onMouseLeave={() => setCurrentAmt(-1)}
         onNearestX={(entry, {index}) => {
@@ -260,7 +287,7 @@ function App() {
         }}
 
         xAxisTitle={'Days since December 31, 2019'}
-        yAxisTitle={'Total amount of cases'}
+        yAxisTitle={datasets.filter(dset => dset.url === dataset)[0].title}
         yAxisLeft={50}
       />
 

@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
-import './regionDropdown.css';
+import './RegionDropdown.css';
 
 // Search function for dropdown taken from:
 // https://react-bootstrap.github.io/components/dropdowns/#custom-dropdown-components
@@ -48,7 +48,7 @@ const RegionMenu = React.forwardRef(
         <ul className='list-unstyled'>
           {React.Children.toArray(children).filter(
             (child) =>
-              !value || child.props.children.toLowerCase().startsWith(value),
+              !value || child.props.children.toLowerCase().includes(value),
           )}
         </ul>
       </div>
@@ -63,10 +63,8 @@ const RegionMenu = React.forwardRef(
  * @param {func} callback function from parent component that returns selected region 
  */
 const RegionDropdown = ({regions, callback}) => {
-  const [region, setRegion] = useState('');
 
   const handleChange = event => {
-    setRegion(regions[event]);
     sendRegionToParent(regions[event]);
   }
 
