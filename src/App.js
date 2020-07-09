@@ -12,6 +12,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import FetchOwidData from './data/FetchOwidData';
 import getMinMax from './util/getMinMax';
 import mapData from './util/mapData';
+import quantizeNote from './util/quantizeNote';
 
 // Components
 import RegionDropdown from './components/regionDropdown';
@@ -42,6 +43,33 @@ const oscTypes = [
   'square',
   'sawtooth',
 ];
+
+// Scales
+const scales = [
+  {
+    name: 'Chromatic',
+    scale: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  },
+  {
+    name: 'Major',
+    scale: [0, 2, 4, 5, 7, 9, 11],
+  },
+  {
+    name: 'Minor',
+    scale: [0, 2, 3, 5, 7, 8, 10],
+  },
+  {
+    name: 'Pentatonic',
+    scale: [0, 2, 4, 7, 9],
+  },
+  {
+    name: 'Whole tone',
+    scale: [0, 2, 4, 6, 8, 10],
+  },
+];
+
+// Default scale selection
+const defaultScaleSelection = 0;
 
 // URL to fetch data
 const defaultUrl = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
@@ -85,6 +113,7 @@ function App() {
   const [minMidiPitch, setMinMidiPitch] = useState(defaultMinMidi);
   const [maxMidiPitch, setMaxMidiPitch] = useState(defaultMaxMidi);
   const [bpm, setBpm] = useState(defaultBpm);
+  const [scaleSelection, setScale] = useState(defaultScaleSelection);
 
   // Synth (with initialization)
   const synth = useRef(null);
@@ -163,6 +192,12 @@ function App() {
       index: entry.index,
     })).filter(entry => !isNaN(entry.note));
     
+    // Quantize notes according to scale (can't do this within convertEntryToMidi for some reason...)
+    const quantizedNotes = notes.map(entry => ({
+      ...entry,
+      note: quantizeNote(entry.note, scales[scaleSelection].scale)
+    }));
+
     // Set up pattern to play data
     var pattern = new Tone.Pattern((time, entry) => {
       synth.current.triggerAttackRelease(Tone.Frequency(entry.note, 'midi'), 0.25);
@@ -174,7 +209,7 @@ function App() {
       if (pattern.index === pattern.values.length - 1) {
         Tone.Transport.cancel();
       }
-    }, notes);
+    }, quantizedNotes);
     
     pattern.start(0);
     Tone.Transport.bpm.value = bpm;
@@ -223,7 +258,7 @@ function App() {
   }
 
   /**
-   * Return statement
+   * Render
    */
   let key = 0;
   return (
@@ -259,7 +294,7 @@ function App() {
       {regionData.length !== 0 && 
         (
           <ButtonGroup>
-            <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>
+            <Button variant='success' onClick={() => sonifyData()}>
               Play
             </Button>
             <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
@@ -283,7 +318,7 @@ function App() {
           setCurrentDate(regionData[index].date);
         }}
         onValueClick={entry => {
-          playMidiNote(convertEntryToMidi(entry.y));
+          playMidiNote( quantizeNote(convertEntryToMidi(entry.y), scales[scaleSelection].scale) );
         }}
 
         xAxisTitle={'Days since December 31, 2019'}
@@ -307,7 +342,15 @@ function App() {
         oscTypes={oscTypes}
       />
       <p>The current oscillator is: <strong>{oscTypes[oscSelection]}</strong></p>
-      <br />
+
+      <Button
+        variant='primary'
+        onClick={() => {
+          setScale((scaleSelection + 1) % scales.length)
+        }}>
+          Toggle scale
+      </Button>
+      <p>Scale: <strong>{ scales[scaleSelection].name }</strong></p>
 
       <MinMaxMidiInput
         handleInput={handleInput}
