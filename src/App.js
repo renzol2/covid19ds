@@ -12,6 +12,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import FetchOwidData from './data/FetchOwidData';
 import getMinMax from './util/getMinMax';
 import mapData from './util/mapData';
+import quantizeNote from './util/quantizeNote';
 
 // Components
 import RegionDropdown from './components/regionDropdown';
@@ -191,6 +192,12 @@ function App() {
       index: entry.index,
     })).filter(entry => !isNaN(entry.note));
     
+    // Quantize notes according to scale (can't do this within convertEntryToMidi for some reason...)
+    const quantizedNotes = notes.map(entry => ({
+      ...entry,
+      note: quantizeNote(entry.note, scales[scaleSelection].scale)
+    }));
+
     // Set up pattern to play data
     var pattern = new Tone.Pattern((time, entry) => {
       synth.current.triggerAttackRelease(Tone.Frequency(entry.note, 'midi'), 0.25);
@@ -202,7 +209,7 @@ function App() {
       if (pattern.index === pattern.values.length - 1) {
         Tone.Transport.cancel();
       }
-    }, notes);
+    }, quantizedNotes);
     
     pattern.start(0);
     Tone.Transport.bpm.value = bpm;
@@ -287,7 +294,7 @@ function App() {
       {regionData.length !== 0 && 
         (
           <ButtonGroup>
-            <Button variant='success' onClick={() => sonifyData(oscTypes[oscSelection])}>
+            <Button variant='success' onClick={() => sonifyData()}>
               Play
             </Button>
             <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
@@ -311,7 +318,7 @@ function App() {
           setCurrentDate(regionData[index].date);
         }}
         onValueClick={entry => {
-          playMidiNote(convertEntryToMidi(entry.y));
+          playMidiNote( quantizeNote(convertEntryToMidi(entry.y), scales[scaleSelection].scale) );
         }}
 
         xAxisTitle={'Days since December 31, 2019'}

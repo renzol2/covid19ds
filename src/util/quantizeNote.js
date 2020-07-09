@@ -5,7 +5,25 @@
  * @returns {number} quantized MIDI note
  */
 function quantizeNote(note, scale) {
-  return 0;
+  let midiPitch = note;
+  
+  const pitchClasses = 12;
+  let quantized = false;
+
+  while (!quantized) {
+    let pitchClass = midiPitch % pitchClasses;
+
+    if (scale.includes(pitchClass)) {
+      quantized = true;
+      break;
+    }
+
+    if (!quantized) {
+      midiPitch--;
+    }
+  }
+  
+  return midiPitch;
 }
 
 export default quantizeNote;
