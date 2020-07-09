@@ -43,6 +43,33 @@ const oscTypes = [
   'sawtooth',
 ];
 
+// Scales
+const scales = [
+  {
+    name: 'Chromatic',
+    scale: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  },
+  {
+    name: 'Major',
+    scale: [0, 2, 4, 5, 7, 9, 11],
+  },
+  {
+    name: 'Minor',
+    scale: [0, 2, 3, 5, 7, 8, 10],
+  },
+  {
+    name: 'Pentatonic',
+    scale: [0, 2, 4, 7, 9],
+  },
+  {
+    name: 'Whole tone',
+    scale: [0, 2, 4, 6, 8, 10],
+  },
+];
+
+// Default scale selection
+const defaultScaleSelection = 0;
+
 // URL to fetch data
 const defaultUrl = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
 
@@ -85,6 +112,7 @@ function App() {
   const [minMidiPitch, setMinMidiPitch] = useState(defaultMinMidi);
   const [maxMidiPitch, setMaxMidiPitch] = useState(defaultMaxMidi);
   const [bpm, setBpm] = useState(defaultBpm);
+  const [scale, setScale] = useState(defaultScaleSelection);
 
   // Synth (with initialization)
   const synth = useRef(null);
