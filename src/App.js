@@ -112,7 +112,7 @@ function App() {
   const [minMidiPitch, setMinMidiPitch] = useState(defaultMinMidi);
   const [maxMidiPitch, setMaxMidiPitch] = useState(defaultMaxMidi);
   const [bpm, setBpm] = useState(defaultBpm);
-  const [scale, setScale] = useState(defaultScaleSelection);
+  const [scaleSelection, setScale] = useState(defaultScaleSelection);
 
   // Synth (with initialization)
   const synth = useRef(null);
@@ -251,7 +251,7 @@ function App() {
   }
 
   /**
-   * Return statement
+   * Render
    */
   let key = 0;
   return (
@@ -335,7 +335,15 @@ function App() {
         oscTypes={oscTypes}
       />
       <p>The current oscillator is: <strong>{oscTypes[oscSelection]}</strong></p>
-      <br />
+
+      <Button
+        variant='primary'
+        onClick={() => {
+          setScale((scaleSelection + 1) % scales.length)
+        }}>
+          Toggle scale
+      </Button>
+      <p>Scale: <strong>{ scales[scaleSelection].name }</strong></p>
 
       <MinMaxMidiInput
         handleInput={handleInput}
