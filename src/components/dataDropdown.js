@@ -28,7 +28,7 @@ class DataDropdown extends Component {
         onSelect={this.handleChange}
       >
         <Dropdown.Toggle id="dropdown-basic">
-          Choose data
+          Data: <b>{this.props.currentDatasetName}</b>
         </Dropdown.Toggle>
 
         <Dropdown.Menu>

@@ -100,12 +100,12 @@ function App() {
   // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = FetchOwidData(defaultUrl);
   const [dataset, setDataset] = useState(defaultUrl);
-  const [region, setRegion] = useState('');
+  const [region, setRegion] = useState('World');
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(0);
-  const [visualize, setVisualize] = useState(true);
-  const [animation, setAnimation] = useState(false);
+  const [displayViz, setVisualize] = useState(true);
+  const [doAnimation, setAnimation] = useState(true);
   const [currentAmt, setCurrentAmt] = useState(-1);
   const [currentDate, setCurrentDate] = useState('');
 
@@ -125,7 +125,10 @@ function App() {
       type: oscTypes[oscSelection],
     }};
     synth.current = new Tone.Synth(options).toMaster();
-  });
+
+    // Initialize region
+    initializeRegion('World');
+  }, []);
 
   /**
    * Updates state variables with region from dropdown
@@ -279,8 +282,15 @@ function App() {
       <h4>Current region: {region}</h4>
       
       <ButtonGroup>
-        <RegionDropdown regions={regions} callback={initializeRegion} />
+        
+        <RegionDropdown 
+          regions={regions} 
+          callback={initializeRegion}
+          currentRegionName={region}
+        />
+
         <DataDropdown
+          currentDatasetName={datasets.find(dset => dset.url === dataset).title}
           datasets={datasets}
           setDataset={setDataset}
           fetchData={fetchData}
@@ -288,8 +298,15 @@ function App() {
           initializeRegion={initializeRegion}
           waitTime={600}
         />
-        <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
-        <Button onClick={() => setAnimation(!animation)}>Toggle graph animation</Button>
+
+        <Button onClick={() => setVisualize(!displayViz)}>
+          {`Visualization: ${displayViz ? 'on' : 'off'}`}
+        </Button>
+        
+        <Button onClick={() => setAnimation(!doAnimation)}>
+          {`Animation: ${doAnimation ? 'on' : 'off'}`}
+        </Button>
+      
       </ButtonGroup>
 
       {/* Play/stop buttons when region data is selected */}
@@ -308,8 +325,8 @@ function App() {
 
       {/* Data visualization */}
       <div style={{height: 400}}>
-        {visualize && <DataVisualization 
-          animate={animation}
+        {displayViz && <DataVisualization 
+          animate={doAnimation}
           axisLeft={{
             legend: datasets.find(d => d.url === dataset).title,
             legendOffset: 10
@@ -319,6 +336,7 @@ function App() {
             data: sanitizeData(regionData)
           }]}
           onClick={(point, event) => {
+            if (point === undefined) return;
             playMidiNote( quantizeNote( convertEntryToMidi(point.data.y), scales[scaleSelection].scale ) );
           }}
         />}

@@ -62,7 +62,7 @@ const RegionMenu = React.forwardRef(
  * @param {Array} regions array of region names (strings)
  * @param {func} callback function from parent component that returns selected region 
  */
-const RegionDropdown = ({regions, callback}) => {
+function RegionDropdown({regions, callback, currentRegionName}) {
 
   const handleChange = event => {
     sendRegionToParent(regions[event]);
@@ -77,7 +77,7 @@ const RegionDropdown = ({regions, callback}) => {
     <div>
         <Dropdown onSelect={handleChange}>
           <Dropdown.Toggle as={CountryToggle} id='dropdown-custom-components'>
-            Choose country 
+            Region: <b>{currentRegionName}</b>
           </Dropdown.Toggle>
 
           <Dropdown.Menu as={RegionMenu} className='dropdown-scroll'>
