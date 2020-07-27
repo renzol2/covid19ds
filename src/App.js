@@ -265,7 +265,7 @@ function App() {
   return (
     <div className='body'>
       <h1>COVID-19 Data Sonification</h1>
-      
+
       {/* Data information */}
       <h3>Display data:</h3>
       <p>{isLoading ? 'Loading data...' : null}</p>
@@ -304,28 +304,30 @@ function App() {
           </ButtonGroup>
         )
       }
-
       {/* Data visualization */}
-      <DataGraph
-        visualize={visualize}
-        height={400}
-        animation={animation}
-        colorRange={['yellow', 'cornflowerblue']}
-        gridLineColor={'#B7E9ED'}
-        data={sanitizeData(regionData)}
-        onMouseLeave={() => setCurrentAmt(-1)}
-        onNearestX={(entry, {index}) => {
-          setCurrentAmt(entry.y);
-          setCurrentDate(regionData[index].date);
-        }}
-        onValueClick={entry => {
-          playMidiNote( quantizeNote(convertEntryToMidi(entry.y), scales[scaleSelection].scale) );
-        }}
 
-        xAxisTitle={'Days since December 31, 2019'}
-        yAxisTitle={datasets.filter(dset => dset.url === dataset)[0].title}
-        yAxisLeft={50}
-      />
+      <div style={{height: 400}}>
+        <ResponsiveLine 
+          isInteractive
+          enableArea
+          enableSlices={'x'}
+          enableGridY={false}
+          axisLeft={{
+            legend: datasets.some(d => d.url === dataset).title
+          }}
+          axisBottom={{
+            legend: 'Days since December 2019',
+            legendOffset: 40
+          }}
+          margin={{top:20,bottom:50,left:75,right:30}}
+          data={[
+            {
+              id: region,
+              data: sanitizeData(regionData)
+            }
+          ]}
+        />
+      </div>
 
       { /* Sonification parameters */}
       <h3>Options:</h3>
