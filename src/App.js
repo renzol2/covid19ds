@@ -310,14 +310,18 @@ function App() {
         <ResponsiveLine 
           isInteractive
           enableArea
-          enableSlices={'x'}
+          useMesh
+          curve={'linear'}
           enableGridY={false}
+          colors={{scheme: 'dark2'}}
           axisLeft={{
-            legend: datasets.some(d => d.url === dataset).title
+            legend: datasets.find(d => d.url === dataset).title,
+            legendOffset: 10
           }}
           axisBottom={{
             legend: 'Days since December 2019',
-            legendOffset: 40
+            legendOffset: 40,
+            format: value => value % 10 === 0 ? value : ''
           }}
           margin={{top:20,bottom:50,left:75,right:30}}
           data={[
@@ -326,6 +330,11 @@ function App() {
               data: sanitizeData(regionData)
             }
           ]}
+          onClick={(point, event) => {
+            playMidiNote( quantizeNote( convertEntryToMidi(point.data.y), scales[scaleSelection].scale ) );
+          }}
+          motionStiffness={300}
+          motionDamping={40}
         />
       </div>
 
