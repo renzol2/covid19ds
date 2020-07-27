@@ -19,6 +19,7 @@ import quantizeNote from './util/quantizeNote';
 import RegionDropdown from './components/regionDropdown';
 import DataDropdown from './components/dataDropdown';
 import DataGraph from './components/DataGraph';
+import DataVisualization from './components/DataVisualization';
 import BpmInput from './components/BpmInput';
 import OscillatorToggleButton from './components/OscillatorToggleButton';
 import PitchButtonGroup from './components/pitchChange';
@@ -288,7 +289,7 @@ function App() {
           waitTime={600}
         />
         <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
-        <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
+        <Button onClick={() => setAnimation(!animation)}>Toggle graph animation</Button>
       </ButtonGroup>
 
       {/* Play/stop buttons when region data is selected */}
@@ -304,38 +305,23 @@ function App() {
           </ButtonGroup>
         )
       }
-      {/* Data visualization */}
 
+      {/* Data visualization */}
       <div style={{height: 400}}>
-        <ResponsiveLine 
-          isInteractive
-          enableArea
-          useMesh
-          curve={'linear'}
-          enableGridY={false}
-          colors={{scheme: 'dark2'}}
+        {visualize && <DataVisualization 
+          animate={animation}
           axisLeft={{
             legend: datasets.find(d => d.url === dataset).title,
             legendOffset: 10
           }}
-          axisBottom={{
-            legend: 'Days since December 2019',
-            legendOffset: 40,
-            format: value => value % 10 === 0 ? value : ''
-          }}
-          margin={{top:20,bottom:50,left:75,right:30}}
-          data={[
-            {
-              id: region,
-              data: sanitizeData(regionData)
-            }
-          ]}
+          data={[{
+            id: region,
+            data: sanitizeData(regionData)
+          }]}
           onClick={(point, event) => {
             playMidiNote( quantizeNote( convertEntryToMidi(point.data.y), scales[scaleSelection].scale ) );
           }}
-          motionStiffness={300}
-          motionDamping={40}
-        />
+        />}
       </div>
 
       { /* Sonification parameters */}
