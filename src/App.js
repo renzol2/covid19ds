@@ -106,8 +106,9 @@ function App() {
   const [maxAmount, setMaxAmount] = useState(0);
   const [displayViz, setVisualize] = useState(true);
   const [doAnimation, setAnimation] = useState(true);
-  const [currentAmt, setCurrentAmt] = useState(-1);
+  const [currentAmt, setCurrentAmt] = useState(Number.MAX_SAFE_INTEGER);
   const [currentDate, setCurrentDate] = useState('');
+  const [playbackData, setPlaybackData] = useState([]);
 
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
@@ -116,6 +117,7 @@ function App() {
   const [maxMidiPitch, setMaxMidiPitch] = useState(defaultMaxMidi);
   const [bpm, setBpm] = useState(defaultBpm);
   const [scaleSelection, setScale] = useState(defaultScaleSelection);
+  const [inPlayback, setInPlayback] = useState(false);
 
   // Synth (with initialization)
   const synth = useRef(null);
@@ -127,6 +129,11 @@ function App() {
     }};
     synth.current = new Tone.Synth(options).toMaster();
 
+  });
+
+  useEffect(() => {
+    if (regionData.length > 0) return;
+    initializeRegion(region);
   });
 
 
@@ -188,6 +195,7 @@ function App() {
    * Sonifies data of selected region
    */
   function sonifyData() {
+    setInPlayback(true);
     Tone.Transport.cancel();  // stops previous loop
 
     // Map region data to objects { note, index }
@@ -212,6 +220,7 @@ function App() {
 
       // Stop playback when finished
       if (pattern.index === pattern.values.length - 1) {
+        setInPlayback(false);
         Tone.Transport.cancel();
       }
     }, quantizedNotes);
@@ -276,7 +285,7 @@ function App() {
       <p>{isError ? 'An error occurred.' : null}</p>
       
       <p>Min/max amount: {minAmount}/{maxAmount}</p>
-      <p>Current amount: {currentAmt === -1 ? 'None' : `${currentAmt} cases at ${currentDate}`}</p>
+      <p>Current amount: {currentAmt === Number.MAX_SAFE_INTEGER ? 'None' : `${currentAmt} cases at ${currentDate}`}</p>
       <p>Dataset URL: {dataset === '' ? 'None' : dataset}</p>
 
       <h4>Current region: {region}</h4>
@@ -316,7 +325,13 @@ function App() {
             <Button variant='success' onClick={() => sonifyData()}>
               Play
             </Button>
-            <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
+            <Button 
+              variant='danger' 
+              onClick={() => {
+                Tone.Transport.cancel();
+                setInPlayback(false);
+              }}
+            >
               Stop
             </Button>
           </ButtonGroup>
@@ -324,7 +339,7 @@ function App() {
       }
 
       {/* Data visualization */}
-      <div style={{height: 400}}>
+      <div className="dataViz">
         {displayViz && <DataVisualization 
           animate={doAnimation}
           axisLeft={{
@@ -341,7 +356,8 @@ function App() {
             playMidiNote( quantizeNote( convertEntryToMidi(point.data.y), scales[scaleSelection].scale ) );
           }}
           onMouseMove={(point, event) => {
-            if (point === undefined) return;
+            // Don't set current amount/date through mouse if in playback
+            if (point === undefined || inPlayback) return;
             setCurrentAmt(point.data.y)
             setCurrentDate(regionData[point.data.x].date)
           }}
