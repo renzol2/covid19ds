@@ -2,7 +2,7 @@ import React from 'react';
 
 import { ResponsiveLine } from '@nivo/line';
 
-function DataVisualization({ animate, axisLeft, data, onClick }) {
+function DataVisualization({ animate, axisLeft, data, onClick, onMouseMove, currentDate }) {
   return (
     <ResponsiveLine
       isInteractive
@@ -22,6 +22,8 @@ function DataVisualization({ animate, axisLeft, data, onClick }) {
       margin={{top:20,bottom:50,left:75,right:30}}
       data={data}
       onClick={onClick}
+      onMouseMove={onMouseMove}
+      crosshairType={'cross'}
       motionStiffness={300}
       motionDamping={40}
     />

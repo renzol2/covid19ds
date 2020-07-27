@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect, useCallback} from 'react';
 import './App.css';
 
 // Tone.js imports
@@ -7,7 +7,6 @@ import * as Tone from 'tone';
 // React-Bootstrap imports
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import { Line, ResponsiveLine } from '@nivo/line';
 
 // Function imports
 import FetchOwidData from './data/FetchOwidData';
@@ -18,7 +17,6 @@ import quantizeNote from './util/quantizeNote';
 // Components
 import RegionDropdown from './components/regionDropdown';
 import DataDropdown from './components/dataDropdown';
-import DataGraph from './components/DataGraph';
 import DataVisualization from './components/DataVisualization';
 import BpmInput from './components/BpmInput';
 import OscillatorToggleButton from './components/OscillatorToggleButton';
@@ -37,6 +35,8 @@ const defaultMaxMidi = 96;
 
 // Default oscillator selection
 const defaultOscSelection = 1;
+
+const defaultRegion = 'World';
 
 // All oscillator types
 const oscTypes = [
@@ -100,7 +100,7 @@ function App() {
   // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = FetchOwidData(defaultUrl);
   const [dataset, setDataset] = useState(defaultUrl);
-  const [region, setRegion] = useState('World');
+  const [region, setRegion] = useState(defaultRegion);
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(0);
@@ -120,21 +120,21 @@ function App() {
   // Synth (with initialization)
   const synth = useRef(null);
   useEffect(() => {
+
     // Set oscillator type and initialize synth
     const options = {oscillator: {
       type: oscTypes[oscSelection],
     }};
     synth.current = new Tone.Synth(options).toMaster();
 
-    // Initialize region
-    initializeRegion('World');
-  }, []);
+  });
+
 
   /**
    * Updates state variables with region from dropdown
    * @param {string} selectedRegion region from dropdown component
    */
-  function initializeRegion(selectedRegion) {
+   function initializeRegion(selectedRegion) {
     console.log('init region');
     setRegion(selectedRegion);
     initializeRegionData(selectedRegion);
@@ -329,7 +329,8 @@ function App() {
           animate={doAnimation}
           axisLeft={{
             legend: datasets.find(d => d.url === dataset).title,
-            legendOffset: 10
+            legendOffset: 10,
+            format: '.2s'
           }}
           data={[{
             id: region,
@@ -338,6 +339,11 @@ function App() {
           onClick={(point, event) => {
             if (point === undefined) return;
             playMidiNote( quantizeNote( convertEntryToMidi(point.data.y), scales[scaleSelection].scale ) );
+          }}
+          onMouseMove={(point, event) => {
+            if (point === undefined) return;
+            setCurrentAmt(point.data.y)
+            setCurrentDate(regionData[point.data.x].date)
           }}
         />}
       </div>
