@@ -7,6 +7,7 @@ import * as Tone from 'tone';
 // React-Bootstrap imports
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import { Line, ResponsiveLine } from '@nivo/line';
 
 // Function imports
 import FetchOwidData from './data/FetchOwidData';
@@ -264,7 +265,7 @@ function App() {
   return (
     <div className='body'>
       <h1>COVID-19 Data Sonification</h1>
-
+      
       {/* Data information */}
       <h3>Display data:</h3>
       <p>{isLoading ? 'Loading data...' : null}</p>
