@@ -24,7 +24,7 @@ import RegionDropdown from './components/regionDropdown';
 import DataDropdown from './components/dataDropdown';
 import DataVisualization from './components/DataVisualization';
 import BpmInput from './components/BpmInput';
-import OscillatorToggleButton from './components/OscillatorToggleButton';
+import OscillatorDropdown from './components/OscillatorDropdown';
 import PitchButtonGroup from './components/PitchButtonGroup';
 import MinMaxMidiInput from './components/MinMaxMidiInput';
 import ScaleDropdown from './components/ScaleDropdown';
@@ -40,7 +40,7 @@ const defaultMinMidi = 36;
 const defaultMaxMidi = 96;
 
 // Default oscillator selection
-const defaultOscSelection = 1;
+const defaultOscSelection = 'triangle';
 
 const defaultRegion = 'World';
 
@@ -139,7 +139,7 @@ function App() {
   useEffect(() => {
     // Set oscillator type and initialize synth
     const options = {oscillator: {
-      type: oscTypes[oscSelection],
+      type: oscSelection,
       volume: volume
     }};
 
@@ -417,17 +417,19 @@ function App() {
       <PitchButtonGroup setPitch={setPitch} pitch={pitch} />
       <p>The current MIDI pitch is: <strong>{pitch}</strong></p>
       
-      <OscillatorToggleButton 
-        setOscSelection={setOscSelection}
-        oscSelection={oscSelection}
-        oscTypes={oscTypes}
-      />
+      <ButtonGroup>
+        <OscillatorDropdown 
+          setOscSelection={setOscSelection}
+          oscSelection={oscSelection}
+          oscTypes={oscTypes}
+        />
 
-      <ScaleDropdown
-        scales={scales}
-        scaleSelection={scaleSelection}
-        setScaleSelection={setScaleSelection}
-      />
+        <ScaleDropdown
+          scales={scales}
+          scaleSelection={scaleSelection}
+          setScaleSelection={setScaleSelection}
+        />
+      </ButtonGroup>
 
       <br />
       <br />
