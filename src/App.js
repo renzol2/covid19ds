@@ -27,6 +27,7 @@ import BpmInput from './components/BpmInput';
 import OscillatorToggleButton from './components/OscillatorToggleButton';
 import PitchButtonGroup from './components/PitchButtonGroup';
 import MinMaxMidiInput from './components/MinMaxMidiInput';
+import ScaleDropdown from './components/ScaleDropdown';
 
 // Default pitch
 const defaultPitch = 60;
@@ -52,31 +53,36 @@ const oscTypes = [
 ];
 
 // Scales
-const scales = [
-  {
+const scales = {
+  chromatic: {
+    key: 'chromatic',
     name: 'Chromatic',
     scale: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
   },
-  {
+  major: {
+    key: 'major',
     name: 'Major',
-    scale: [0, 2, 4, 5, 7, 9, 11],
+    scale: [0, 2, 4, 5, 7, 9, 11]
   },
-  {
+  minor: {
+    key: 'minor',
     name: 'Minor',
-    scale: [0, 2, 3, 5, 7, 8, 10],
+    scale: [0, 2, 3, 5, 7, 8, 10]
   },
-  {
+  pentatonic: {
+    key: 'pentatonic',
     name: 'Pentatonic',
-    scale: [0, 2, 4, 7, 9],
+    scale: [0, 2, 4, 7, 9]
   },
-  {
+  wholeTone: {
+    key: 'wholeTone',
     name: 'Whole tone',
-    scale: [0, 2, 4, 6, 8, 10],
-  },
-];
+    scale: [0, 2, 4, 6, 8, 10]
+  }
+};
 
 // Default scale selection
-const defaultScaleSelection = 0;
+const defaultScaleSelection = 'chromatic';
 
 // URL to fetch data
 const defaultUrl = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
@@ -122,7 +128,7 @@ function App() {
   const [minMidiPitch, setMinMidiPitch] = useState(defaultMinMidi);
   const [maxMidiPitch, setMaxMidiPitch] = useState(defaultMaxMidi);
   const [bpm, setBpm] = useState(defaultBpm);
-  const [scaleSelection, setScale] = useState(defaultScaleSelection);
+  const [scaleSelection, setScaleSelection] = useState(defaultScaleSelection);
   const [inPlayback, setInPlayback] = useState(false);
 
   // Synth using React Hooks
@@ -417,13 +423,11 @@ function App() {
         oscTypes={oscTypes}
       />
 
-      <Button
-        variant='primary'
-        onClick={() => {
-          setScale((scaleSelection + 1) % scales.length)
-        }}>
-          Scale: <b>{scales[scaleSelection].name}</b>
-      </Button>
+      <ScaleDropdown
+        scales={scales}
+        scaleSelection={scaleSelection}
+        setScaleSelection={setScaleSelection}
+      />
 
       <br />
       <br />
