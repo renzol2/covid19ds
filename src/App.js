@@ -196,6 +196,7 @@ function App() {
    */
   function sonifyData() {
     setInPlayback(true);
+
     Tone.Transport.cancel();  // stops previous loop
 
     // Map region data to objects { note, index }
@@ -217,10 +218,14 @@ function App() {
       
       setCurrentAmt(regionData[entry.index].amount);
       setCurrentDate(entry.date);
+      playbackData.push(regionData[entry.index]);
+      setPlaybackData(playbackData);
+      console.log(playbackData)
 
       // Stop playback when finished
       if (pattern.index === pattern.values.length - 1) {
         setInPlayback(false);
+        setPlaybackData([]);
         Tone.Transport.cancel();
       }
     }, quantizedNotes);
@@ -274,7 +279,6 @@ function App() {
   /**
    * Render
    */
-  let key = 0;
   return (
     <div className='body'>
       <h1>COVID-19 Data Sonification</h1>
@@ -322,13 +326,21 @@ function App() {
       {regionData.length !== 0 && 
         (
           <ButtonGroup>
-            <Button variant='success' onClick={() => sonifyData()}>
+            <Button 
+              variant='success' 
+              onClick={() => {
+                Tone.Transport.cancel();
+                sonifyData();
+              }}
+            >
               Play
             </Button>
+
             <Button 
               variant='danger' 
               onClick={() => {
                 Tone.Transport.cancel();
+                setPlaybackData([]);
                 setInPlayback(false);
               }}
             >
@@ -348,8 +360,8 @@ function App() {
             format: '.2s'
           }}
           data={[{
-            id: region,
-            data: sanitizeData(regionData)
+            id: region, 
+            data: inPlayback ? sanitizeData(playbackData) : sanitizeData(regionData)
           }]}
           onClick={(point, event) => {
             if (point === undefined) return;
@@ -401,22 +413,6 @@ function App() {
 
       {/* BPM input */}
       <BpmInput bpm={bpm} setBpm={setBpm} handleInput={handleInput} />
-      
-      {/* Data (actual / MIDI) */}
-      {regionData.length !== 0 && (<h2>Raw data</h2>)}
-      <ul>
-        {regionData.length !== 0 &&
-          regionData.map(entry => (
-            <li key={key++} >
-              {entry.date}: <strong>{
-                isNaN(entry.amount) 
-                  ? 'No data' 
-                  : entry.amount
-              }</strong> 
-            </li>
-          ))
-        }
-      </ul>
 
     </div>
   )
