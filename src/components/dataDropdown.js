@@ -2,6 +2,10 @@ import React, {useCallback} from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 
+/*
+  FIXME: using the functional component stops the data from loading when choosing a new dataset, so
+         I reverted back to using the class component but I'd rather use a functional one
+ */
 
 function DataDropdown({currentDatasetName, datasets, setDataset, fetchData, region, initializeRegion, waitTime}) {
 
@@ -15,9 +19,10 @@ function DataDropdown({currentDatasetName, datasets, setDataset, fetchData, regi
         dataset can be downloaded and updated with fetchData. Need to find a way to do a
         await/async operation with fetchData and initializeRegion.
       */
-      setTimeout(() => initializeRegion(region), waitTime);
+      // setTimeout(() => initializeRegion(region), waitTime);
+      initializeRegion(region);
     },
-    []  // FIXME: this needs to be empty otherwise data loading lags again :(
+    [fetchData, initializeRegion, region, setDataset]
   );
 
   let key = 0;

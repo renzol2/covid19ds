@@ -21,7 +21,7 @@ import quantizeNote from './util/quantizeNote';
 
 // Components
 import RegionDropdown from './components/regionDropdown';
-import DataDropdown from './components/dataDropdown';
+import DataDropdown from './components/DataDropdownClass';
 import DataVisualization from './components/DataVisualization';
 import BpmInput from './components/BpmInput';
 import OscillatorDropdown from './components/OscillatorDropdown';
@@ -143,7 +143,8 @@ function App() {
       volume: volume
     }};
 
-    synth.current = new Tone.Synth(options).toMaster();
+    const dist = new Tone.Distortion(0.8).toMaster();
+    synth.current = new Tone.Synth(options).connect(dist);
     
   }, [oscSelection, volume]);
 
@@ -169,6 +170,7 @@ function App() {
    * @param {string} newRegion selected region from dropdown
    */
   function initializeRegionData(newRegion) {
+    // console.log('init region data');
     let selectedRegionData = [];
     let amounts = [];
 
