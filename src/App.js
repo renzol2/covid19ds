@@ -17,7 +17,7 @@ import quantizeNote from './util/quantizeNote';
 // Components
 import RegionDropdown from './components/regionDropdown';
 import DataDropdown from './components/dataDropdown';
-import DataGraph from './components/DataGraph';
+import DataVisualization from './components/DataVisualization';
 import BpmInput from './components/BpmInput';
 import OscillatorToggleButton from './components/OscillatorToggleButton';
 import PitchButtonGroup from './components/pitchChange';
@@ -35,6 +35,8 @@ const defaultMaxMidi = 96;
 
 // Default oscillator selection
 const defaultOscSelection = 1;
+
+const defaultRegion = 'World';
 
 // All oscillator types
 const oscTypes = [
@@ -98,14 +100,15 @@ function App() {
   // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = FetchOwidData(defaultUrl);
   const [dataset, setDataset] = useState(defaultUrl);
-  const [region, setRegion] = useState('');
+  const [region, setRegion] = useState(defaultRegion);
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(0);
-  const [visualize, setVisualize] = useState(true);
-  const [animation, setAnimation] = useState(false);
-  const [currentAmt, setCurrentAmt] = useState(-1);
+  const [displayViz, setVisualize] = useState(true);
+  const [doAnimation, setAnimation] = useState(true);
+  const [currentAmt, setCurrentAmt] = useState(Number.MAX_SAFE_INTEGER);
   const [currentDate, setCurrentDate] = useState('');
+  const [playbackData, setPlaybackData] = useState([]);
 
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
@@ -114,22 +117,31 @@ function App() {
   const [maxMidiPitch, setMaxMidiPitch] = useState(defaultMaxMidi);
   const [bpm, setBpm] = useState(defaultBpm);
   const [scaleSelection, setScale] = useState(defaultScaleSelection);
+  const [inPlayback, setInPlayback] = useState(false);
 
   // Synth (with initialization)
   const synth = useRef(null);
   useEffect(() => {
+
     // Set oscillator type and initialize synth
     const options = {oscillator: {
       type: oscTypes[oscSelection],
     }};
     synth.current = new Tone.Synth(options).toMaster();
+
   });
+
+  useEffect(() => {
+    if (regionData.length > 0) return;
+    initializeRegion(region);
+  });
+
 
   /**
    * Updates state variables with region from dropdown
    * @param {string} selectedRegion region from dropdown component
    */
-  function initializeRegion(selectedRegion) {
+   function initializeRegion(selectedRegion) {
     console.log('init region');
     setRegion(selectedRegion);
     initializeRegionData(selectedRegion);
@@ -183,6 +195,8 @@ function App() {
    * Sonifies data of selected region
    */
   function sonifyData() {
+    setInPlayback(true);
+
     Tone.Transport.cancel();  // stops previous loop
 
     // Map region data to objects { note, index }
@@ -204,9 +218,14 @@ function App() {
       
       setCurrentAmt(regionData[entry.index].amount);
       setCurrentDate(entry.date);
+      playbackData.push(regionData[entry.index]);
+      setPlaybackData(playbackData);
+      console.log(playbackData)
 
       // Stop playback when finished
       if (pattern.index === pattern.values.length - 1) {
+        setInPlayback(false);
+        setPlaybackData([]);
         Tone.Transport.cancel();
       }
     }, quantizedNotes);
@@ -260,7 +279,6 @@ function App() {
   /**
    * Render
    */
-  let key = 0;
   return (
     <div className='body'>
       <h1>COVID-19 Data Sonification</h1>
@@ -271,14 +289,21 @@ function App() {
       <p>{isError ? 'An error occurred.' : null}</p>
       
       <p>Min/max amount: {minAmount}/{maxAmount}</p>
-      <p>Current amount: {currentAmt === -1 ? 'None' : `${currentAmt} cases at ${currentDate}`}</p>
+      <p>Current amount: {currentAmt === Number.MAX_SAFE_INTEGER ? 'None' : `${currentAmt} cases at ${currentDate}`}</p>
       <p>Dataset URL: {dataset === '' ? 'None' : dataset}</p>
 
       <h4>Current region: {region}</h4>
       
       <ButtonGroup>
-        <RegionDropdown regions={regions} callback={initializeRegion} />
+        
+        <RegionDropdown 
+          regions={regions} 
+          callback={initializeRegion}
+          currentRegionName={region}
+        />
+
         <DataDropdown
+          currentDatasetName={datasets.find(dset => dset.url === dataset).title}
           datasets={datasets}
           setDataset={setDataset}
           fetchData={fetchData}
@@ -286,18 +311,39 @@ function App() {
           initializeRegion={initializeRegion}
           waitTime={600}
         />
-        <Button onClick={() => setVisualize(!visualize)}>Toggle visualization</Button>
-        <Button onClick={() => setAnimation(!animation)}>Toggle animation (affects performance)</Button>
+
+        <Button onClick={() => setVisualize(!displayViz)}>
+          {`Visualization: ${displayViz ? 'on' : 'off'}`}
+        </Button>
+        
+        <Button onClick={() => setAnimation(!doAnimation)}>
+          {`Animation: ${doAnimation ? 'on' : 'off'}`}
+        </Button>
+      
       </ButtonGroup>
 
       {/* Play/stop buttons when region data is selected */}
       {regionData.length !== 0 && 
         (
           <ButtonGroup>
-            <Button variant='success' onClick={() => sonifyData()}>
+            <Button 
+              variant='success' 
+              onClick={() => {
+                Tone.Transport.cancel();
+                sonifyData();
+              }}
+            >
               Play
             </Button>
-            <Button variant='danger' onClick={() => Tone.Transport.cancel()}>
+
+            <Button 
+              variant='danger' 
+              onClick={() => {
+                Tone.Transport.cancel();
+                setPlaybackData([]);
+                setInPlayback(false);
+              }}
+            >
               Stop
             </Button>
           </ButtonGroup>
@@ -305,26 +351,30 @@ function App() {
       }
 
       {/* Data visualization */}
-      <DataGraph
-        visualize={visualize}
-        height={400}
-        animation={animation}
-        colorRange={['yellow', 'cornflowerblue']}
-        gridLineColor={'#B7E9ED'}
-        data={sanitizeData(regionData)}
-        onMouseLeave={() => setCurrentAmt(-1)}
-        onNearestX={(entry, {index}) => {
-          setCurrentAmt(entry.y);
-          setCurrentDate(regionData[index].date);
-        }}
-        onValueClick={entry => {
-          playMidiNote( quantizeNote(convertEntryToMidi(entry.y), scales[scaleSelection].scale) );
-        }}
-
-        xAxisTitle={'Days since December 31, 2019'}
-        yAxisTitle={datasets.filter(dset => dset.url === dataset)[0].title}
-        yAxisLeft={50}
-      />
+      <div className="dataViz">
+        {displayViz && <DataVisualization 
+          animate={doAnimation}
+          axisLeft={{
+            legend: datasets.find(d => d.url === dataset).title,
+            legendOffset: 10,
+            format: '.2s'
+          }}
+          data={[{
+            id: region, 
+            data: inPlayback ? sanitizeData(playbackData) : sanitizeData(regionData)
+          }]}
+          onClick={(point, event) => {
+            if (point === undefined) return;
+            playMidiNote( quantizeNote( convertEntryToMidi(point.data.y), scales[scaleSelection].scale ) );
+          }}
+          onMouseMove={(point, event) => {
+            // Don't set current amount/date through mouse if in playback
+            if (point === undefined || inPlayback) return;
+            setCurrentAmt(point.data.y)
+            setCurrentDate(regionData[point.data.x].date)
+          }}
+        />}
+      </div>
 
       { /* Sonification parameters */}
       <h3>Options:</h3>
@@ -363,22 +413,6 @@ function App() {
 
       {/* BPM input */}
       <BpmInput bpm={bpm} setBpm={setBpm} handleInput={handleInput} />
-      
-      {/* Data (actual / MIDI) */}
-      {regionData.length !== 0 && (<h2>Raw data</h2>)}
-      <ul>
-        {regionData.length !== 0 &&
-          regionData.map(entry => (
-            <li key={key++} >
-              {entry.date}: <strong>{
-                isNaN(entry.amount) 
-                  ? 'No data' 
-                  : entry.amount
-              }</strong> 
-            </li>
-          ))
-        }
-      </ul>
 
     </div>
   )

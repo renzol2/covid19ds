@@ -50,7 +50,6 @@ function FetchOwidData(initUrl) {
       setLoading(false);
     }
     
-    // Call the above function
     fetchData();
 
   }, [url]);
