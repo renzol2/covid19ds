@@ -1,51 +1,52 @@
-import React, {Component} from 'react';
+import React, {useCallback} from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import PropTypes from 'prop-types';
 
-class DataDropdown extends Component {
-  constructor(props) {
-    super(props);
 
-    this.handleChange = this.handleChange.bind(this);
-  }
+function DataDropdown({currentDatasetName, datasets, setDataset, fetchData, region, initializeRegion, waitTime}) {
 
-  async handleChange(newDatasetUrl) {
-    this.props.setDataset(newDatasetUrl);
-    await this.props.fetchData(newDatasetUrl);
+  const handleDatasetSelection = useCallback(
+    (newDatasetUrl) => {
+      setDataset(newDatasetUrl);
+      fetchData(newDatasetUrl);
 
-    /*
-     FIXME: the function initializeRegion finishes BEFORE the
-     dataset can be downloaded and updated with fetchData. Need to find a way to do a
-     await/async operation with fetchData and initializeRegion.
-     */
-    setTimeout(() => this.props.initializeRegion(this.props.region), this.props.waitTime);
-  }
+      /*
+        FIXME: the function initializeRegion finishes BEFORE the
+        dataset can be downloaded and updated with fetchData. Need to find a way to do a
+        await/async operation with fetchData and initializeRegion.
+      */
+      setTimeout(() => initializeRegion(region), waitTime);
+    },
+    []  // FIXME: this needs to be empty otherwise data loading lags again :(
+  );
 
-  render() {
-    let key = 0;
-    return (
-      <Dropdown
-        onSelect={this.handleChange}
-      >
-        <Dropdown.Toggle id="dropdown-basic">
-          Data: <b>{this.props.currentDatasetName}</b>
-        </Dropdown.Toggle>
+  let key = 0;
+  return (
+    <Dropdown onSelect={handleDatasetSelection}>
+      <Dropdown.Toggle id="dropdown-basic">
+        Data: <b>{currentDatasetName}</b>
+      </Dropdown.Toggle>
 
-        <Dropdown.Menu>
-          {this.props.datasets.map(dataset => (
-            <Dropdown.Item eventKey={dataset.url} key={key++}>
-              {dataset.title}
-            </Dropdown.Item>
-          ))}
-        </Dropdown.Menu>
-      </Dropdown>
-    );
-  }
+      <Dropdown.Menu>
+        {datasets.map(dataset => (
+          <Dropdown.Item eventKey={dataset.url} key={key++}>
+            {dataset.title}
+          </Dropdown.Item>
+        ))}
+      </Dropdown.Menu>
+    </Dropdown>
+  )
+
 }
 
 DataDropdown.propTypes = {
+  currentDatasetName: PropTypes.string.isRequired,
   datasets: PropTypes.array.isRequired,
   setDataset: PropTypes.func.isRequired,
+  fetchData: PropTypes.func.isRequired,
+  region: PropTypes.string.isRequired,
+  initializeRegion: PropTypes.func.isRequired,
+  waitTime: PropTypes.number.isRequired
 }
 
 export default DataDropdown;
