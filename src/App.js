@@ -25,7 +25,7 @@ import DataDropdown from './components/dataDropdown';
 import DataVisualization from './components/DataVisualization';
 import BpmInput from './components/BpmInput';
 import OscillatorToggleButton from './components/OscillatorToggleButton';
-import PitchButtonGroup from './components/pitchChange';
+import PitchButtonGroup from './components/PitchButtonGroup';
 import MinMaxMidiInput from './components/MinMaxMidiInput';
 
 // Default pitch
@@ -154,7 +154,6 @@ function App() {
    * @param {string} selectedRegion region from dropdown component
    */
    function initializeRegion(selectedRegion) {
-    console.log('init region');
     setRegion(selectedRegion);
     initializeRegionData(selectedRegion);
   };
@@ -417,16 +416,17 @@ function App() {
         oscSelection={oscSelection}
         oscTypes={oscTypes}
       />
-      <p>The current oscillator is: <strong>{oscTypes[oscSelection]}</strong></p>
 
       <Button
         variant='primary'
         onClick={() => {
           setScale((scaleSelection + 1) % scales.length)
         }}>
-          Toggle scale
+          Scale: <b>{scales[scaleSelection].name}</b>
       </Button>
-      <p>Scale: <strong>{ scales[scaleSelection].name }</strong></p>
+
+      <br />
+      <br />
 
       <MinMaxMidiInput
         handleInput={handleInput}

@@ -1,29 +1,27 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
 /**
  * Toggles through the app's oscillator types
  * 
- * @param {func}   props.setOscSelection function that sets oscSelection state
- * @param {number} props.oscSelection    state that represents selected oscillator from oscTypes
- * @param {array}  props.oscTypes        array that holds names of different oscillator types
+ * @param {func}   setOscSelection function that sets oscSelection state
+ * @param {number} oscSelection    state that represents selected oscillator from oscTypes
+ * @param {array}  oscTypes        array that holds names of different oscillator types
  */
-class OscillatorToggleButton extends Component {
-  render() {
-    return (
-      <Button 
-        variant='primary' 
-        onClick={
-          () => this.props.setOscSelection(
-            (this.props.oscSelection + 1) % this.props.oscTypes.length
-          )
-        }
-      >
-        Toggle oscillator
-      </Button>
-    );
-  }
+function OscillatorToggleButton({oscSelection, setOscSelection, oscTypes}) {
+  return (
+    <Button 
+      variant='primary' 
+      onClick={
+        () => setOscSelection(
+          (oscSelection + 1) % oscTypes.length
+        )
+      }
+    >
+      Current oscillator: <b>{oscTypes[oscSelection]}</b>
+    </Button>
+  );
 }
 
 OscillatorToggleButton.propTypes = {

@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import PropTypes from 'prop-types';
@@ -6,15 +6,14 @@ import PropTypes from 'prop-types';
 /**
  * Allows user to set the bounds of min/max MIDI values for sonification
  * 
- * @param {func} props.handleInput     function to handle numerical state change
- * @param {func} props.setMinMidiPitch function that sets min MIDI value state
- * @param {func} props.setMaxMidiPitch function that sets max MIDI value state
+ * @param {func} handleInput     function to handle numerical state change
+ * @param {func} setMinMidiPitch function that sets min MIDI value state
+ * @param {func} setMaxMidiPitch function that sets max MIDI value state
  */
-class MinMaxMidiInput extends Component {
-  render() {
-    return (
-      <div>
-        {/* Min MIDI pitch input */}
+function MinMaxMidiInput({handleInput, setMinMidiPitch, setMaxMidiPitch}) {
+  return (
+    <div>
+      {/* Min MIDI pitch input */}
       <InputGroup>
         <InputGroup.Prepend>
           <InputGroup.Text>Minimum MIDI pitch</InputGroup.Text>
@@ -23,7 +22,7 @@ class MinMaxMidiInput extends Component {
           placeholder='Ex: 0'
           aria-label='Minimum MIDI pitch'
           onChange={
-            (event) => this.props.handleInput(event, this.props.setMinMidiPitch)
+            (event) => handleInput(event, setMinMidiPitch)
           }
         />
       </InputGroup>
@@ -37,13 +36,12 @@ class MinMaxMidiInput extends Component {
           placeholder='Ex: 127'
           aria-label='Maximum MIDI pitch'
           onChange={
-            (event) => this.props.handleInput(event, this.props.setMaxMidiPitch)
+            (event) => handleInput(event, setMaxMidiPitch)
           }
         />
       </InputGroup>
-      </div>
-    );
-  }
+    </div>
+  );
 }
 
 MinMaxMidiInput.propTypes = {
