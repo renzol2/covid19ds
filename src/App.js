@@ -7,6 +7,7 @@ import * as Tone from 'tone';
 // React-Bootstrap imports
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import ReactBootstrapSlider from 'react-bootstrap-slider';
 
 // Function imports
 import FetchOwidData from './data/FetchOwidData';
@@ -119,18 +120,24 @@ function App() {
   const [scaleSelection, setScale] = useState(defaultScaleSelection);
   const [inPlayback, setInPlayback] = useState(false);
 
-  // Synth (with initialization)
+  // Synth using React Hooks
+  // https://github.com/Tonejs/Tone.js/wiki/Using-Tone.js-with-React-or-Vue
   const synth = useRef(null);
-  useEffect(() => {
 
+  // Initialize synth
+  useEffect(() => {
     // Set oscillator type and initialize synth
     const options = {oscillator: {
       type: oscTypes[oscSelection],
+      volume: 0
     }};
+
     synth.current = new Tone.Synth(options).toMaster();
+    
+  }, [oscSelection]);
 
-  });
-
+  // Continually initialize region data on startup until data is loaded
+  // FIXME: tacky solution to load the graph on app startup, is there a better way to do this?
   useEffect(() => {
     if (regionData.length > 0) return;
     initializeRegion(region);
@@ -375,6 +382,9 @@ function App() {
           }}
         />}
       </div>
+
+      {/* React bootstrap slider */}
+      
 
       { /* Sonification parameters */}
       <h3>Options:</h3>
