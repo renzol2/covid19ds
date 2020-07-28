@@ -7,11 +7,7 @@ import * as Tone from 'tone';
 // React-Bootstrap imports
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-
-// Required for react-bootstrap-slider
-import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap-slider/dist/css/bootstrap-slider.css"
-import ReactBootstrapSlider from 'react-bootstrap-slider';
+import Form from 'react-bootstrap/Form';
 
 // Function imports
 import FetchOwidData from './data/FetchOwidData';
@@ -43,6 +39,9 @@ const defaultMaxMidi = 96;
 const defaultOscSelection = 'triangle';
 
 const defaultRegion = 'World';
+const defaultVolume = -5; // in dB
+const minVolume = -30;
+const maxVolume = 0;
 
 // All oscillator types
 const oscTypes = [
@@ -121,9 +120,10 @@ function App() {
   const [currentDate, setCurrentDate] = useState('');
   const [playbackData, setPlaybackData] = useState([]);
 
+
   // Sonification state variables
   const [pitch, setPitch] = useState(defaultPitch);
-  const [volume, setVolume] = useState(-5);  // in dB
+  const [synthVolume, setSynthVolume] = useState(-5);  // in dB
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
   const [minMidiPitch, setMinMidiPitch] = useState(defaultMinMidi);
   const [maxMidiPitch, setMaxMidiPitch] = useState(defaultMaxMidi);
@@ -140,13 +140,16 @@ function App() {
     // Set oscillator type and initialize synth
     const options = {oscillator: {
       type: oscSelection,
-      volume: volume
+      volume: synthVolume,
     }};
 
-    const dist = new Tone.Distortion(0.8).toMaster();
-    synth.current = new Tone.Synth(options).connect(dist);
+    // TODO: add sliders for everything
+    const dist = new Tone.Distortion().toMaster();  // 0-1
+    const jcrev = new Tone.JCReverb(1).toMaster();  // 0-1
+    const freeverb = new Tone.Freeverb(1).toMaster();  // 0-1,freq
+    synth.current = new Tone.Synth(options).connect(jcrev).connect(dist).connect(freeverb);
     
-  }, [oscSelection, volume]);
+  }, [oscSelection, synthVolume]);
 
   // Continually initialize region data on startup until data is loaded
   // FIXME: tacky solution to load the graph on app startup, is there a better way to do this?
@@ -398,19 +401,14 @@ function App() {
       <h3>Options:</h3>
       
       {/* React bootstrap slider */}
-      <p>Volume (in dB)</p>
-      <ReactBootstrapSlider
-        value={volume}
-        min={-30}
-        max={0}
-        step={0.05}
-        change={(event) => {
-          const newVolume = event.target.value;  // in dB
-          setVolume(newVolume);
-        }}
-      />
-      <br />
-      <br />
+      <Form >
+        <Form.Label>Synth Volume (in dB)</Form.Label>
+        <Form.Control type="range" defaultValue={mapData(minVolume, maxVolume, 0, 100, defaultVolume)} onChange={(event) => {
+          const newValue = event.target.value;  // dB
+          const newVolume = mapData(0, 100, minVolume, maxVolume, newValue);
+          setSynthVolume(newVolume);
+        }} />
+      </Form>
       
       <Button variant="info" onClick={() => playMidiNote(pitch)}>Play test pitch</Button>
       <br />
