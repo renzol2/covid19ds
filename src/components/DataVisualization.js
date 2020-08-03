@@ -14,7 +14,7 @@ function DataVisualization({ animate, axisLeft, data, onClick, onMouseMove }) {
       colors={{scheme: 'dark2'}}
       axisLeft={axisLeft}
       axisBottom={{
-        legend: 'Days since December 2019',
+        legend: 'Days since December 31, 2019',
         legendOffset: 40,
         // Only show values on x-axis that are divisible by 10
         format: value => value % 10 === 0 ? value : ''
