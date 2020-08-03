@@ -130,6 +130,10 @@ function App() {
   const [bpm, setBpm] = useState(defaultBpm);
   const [scaleSelection, setScaleSelection] = useState(defaultScaleSelection);
   const [inPlayback, setInPlayback] = useState(false);
+  const [useChorus, setUseChorus] = useState(false);
+  const [useDist, setUseDist] = useState(false);
+  const [useJCRev, setUseJCRev] = useState(false);
+  const [useFreeverb, setUseFreeverb] = useState(false);
 
   // Synth using React Hooks
   // https://github.com/Tonejs/Tone.js/wiki/Using-Tone.js-with-React-or-Vue
@@ -144,12 +148,20 @@ function App() {
     }};
 
     // TODO: add sliders for everything
-    const dist = new Tone.Distortion().toMaster();  // 0-1
-    const jcrev = new Tone.JCReverb(1).toMaster();  // 0-1
-    const freeverb = new Tone.Freeverb(1).toMaster();  // 0-1,freq
-    synth.current = new Tone.Synth(options).connect(jcrev).connect(dist).connect(freeverb);
+    const dist = new Tone.Distortion(1).toMaster();  // 0-1
+    const jcrev = new Tone.JCReverb(0.5).toMaster();  // 0-1
+    const freeverb = new Tone.Freeverb(0.75).toMaster();  // 0-1,freq
+    const chorus = new Tone.Chorus(4, 2.5, 0.5).toMaster();
+    synth.current = new Tone.Synth(options);
+
+    if (useDist) synth.current.connect(dist);
+    if (useChorus) synth.current.connect(chorus);
+    if (useFreeverb) synth.current.connect(freeverb);
+    if (useJCRev) synth.current.connect(jcrev);
+
+    synth.current.toMaster();
     
-  }, [oscSelection, synthVolume]);
+  }, [oscSelection, synthVolume, useDist, useChorus, useFreeverb, useJCRev]);
 
   // Continually initialize region data on startup until data is loaded
   // FIXME: tacky solution to load the graph on app startup, is there a better way to do this?
@@ -429,6 +441,22 @@ function App() {
           scaleSelection={scaleSelection}
           setScaleSelection={setScaleSelection}
         />
+      </ButtonGroup>
+      <br />
+
+      <ButtonGroup>
+        <Button onClick={() => setUseDist(!useDist)}>
+          Distortion: <b>{useDist ? 'enabled' : 'disabled'}</b>
+        </Button>
+        <Button onClick={() => setUseChorus(!useChorus)}>
+          Chorus: <b>{useChorus ? 'enabled' : 'disabled'}</b>
+        </Button>
+        <Button onClick={() => setUseFreeverb(!useFreeverb)}>
+          Freeverb: <b>{useFreeverb ? 'enabled' : 'disabled'}</b>
+        </Button>
+        <Button onClick={() => setUseJCRev(!useJCRev)}>
+          JCReverb: <b>{useJCRev ? 'enabled' : 'disabled'}</b>
+        </Button>
       </ButtonGroup>
 
       <br />
