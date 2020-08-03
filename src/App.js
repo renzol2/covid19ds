@@ -7,6 +7,7 @@ import * as Tone from 'tone';
 // React-Bootstrap imports
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Form from 'react-bootstrap/Form';
 
 // Function imports
 import FetchOwidData from './data/FetchOwidData';
@@ -16,15 +17,12 @@ import quantizeNote from './util/quantizeNote';
 
 // Components
 import RegionDropdown from './components/regionDropdown';
-import DataDropdown from './components/dataDropdown';
+import DataDropdown from './components/DataDropdownClass';
 import DataVisualization from './components/DataVisualization';
 import BpmInput from './components/BpmInput';
-import OscillatorToggleButton from './components/OscillatorToggleButton';
-import PitchButtonGroup from './components/pitchChange';
+import OscillatorDropdown from './components/OscillatorDropdown';
 import MinMaxMidiInput from './components/MinMaxMidiInput';
-
-// Default pitch
-const defaultPitch = 60;
+import ScaleDropdown from './components/ScaleDropdown';
 
 // Default BPM
 const defaultBpm = 999;
@@ -34,9 +32,12 @@ const defaultMinMidi = 36;
 const defaultMaxMidi = 96;
 
 // Default oscillator selection
-const defaultOscSelection = 1;
+const defaultOscSelection = 'triangle';
 
 const defaultRegion = 'World';
+const defaultVolume = -5; // in dB
+const minVolume = -30;
+const maxVolume = 0;
 
 // All oscillator types
 const oscTypes = [
@@ -47,31 +48,36 @@ const oscTypes = [
 ];
 
 // Scales
-const scales = [
-  {
+const scales = {
+  chromatic: {
+    key: 'chromatic',
     name: 'Chromatic',
     scale: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
   },
-  {
+  major: {
+    key: 'major',
     name: 'Major',
-    scale: [0, 2, 4, 5, 7, 9, 11],
+    scale: [0, 2, 4, 5, 7, 9, 11]
   },
-  {
+  minor: {
+    key: 'minor',
     name: 'Minor',
-    scale: [0, 2, 3, 5, 7, 8, 10],
+    scale: [0, 2, 3, 5, 7, 8, 10]
   },
-  {
+  pentatonic: {
+    key: 'pentatonic',
     name: 'Pentatonic',
-    scale: [0, 2, 4, 7, 9],
+    scale: [0, 2, 4, 7, 9]
   },
-  {
+  wholeTone: {
+    key: 'wholeTone',
     name: 'Whole tone',
-    scale: [0, 2, 4, 6, 8, 10],
-  },
-];
+    scale: [0, 2, 4, 6, 8, 10]
+  }
+};
 
 // Default scale selection
-const defaultScaleSelection = 0;
+const defaultScaleSelection = 'chromatic';
 
 // URL to fetch data
 const defaultUrl = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
@@ -111,26 +117,54 @@ function App() {
   const [playbackData, setPlaybackData] = useState([]);
 
   // Sonification state variables
-  const [pitch, setPitch] = useState(defaultPitch);
+  const [synthVolume, setSynthVolume] = useState(-5);  // in dB
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
   const [minMidiPitch, setMinMidiPitch] = useState(defaultMinMidi);
   const [maxMidiPitch, setMaxMidiPitch] = useState(defaultMaxMidi);
   const [bpm, setBpm] = useState(defaultBpm);
-  const [scaleSelection, setScale] = useState(defaultScaleSelection);
+  const [scaleSelection, setScaleSelection] = useState(defaultScaleSelection);
   const [inPlayback, setInPlayback] = useState(false);
+  const [useChorus, setUseChorus] = useState(false);
+  const [useDist, setUseDist] = useState(false);
+  const [useJCRev, setUseJCRev] = useState(false);
+  const [useFreeverb, setUseFreeverb] = useState(false);
+  const [useAutoWah, setUseAutoWah] = useState(false);
 
-  // Synth (with initialization)
+  // Synth using React Hooks
+  // https://github.com/Tonejs/Tone.js/wiki/Using-Tone.js-with-React-or-Vue
   const synth = useRef(null);
-  useEffect(() => {
 
+  // Initialize synth
+  useEffect(() => {
     // Set oscillator type and initialize synth
     const options = {oscillator: {
-      type: oscTypes[oscSelection],
+      type: oscSelection,
+      volume: synthVolume,
     }};
-    synth.current = new Tone.Synth(options).toMaster();
 
-  });
+    // Effects
+    const dist = new Tone.Distortion(1).toMaster();  // 0-1
+    const jcrev = new Tone.JCReverb(0.5).toMaster();  // 0-1
+    const freeverb = new Tone.Freeverb(0.75).toMaster();  // 0-1,freq
+    // These settings I'm taking straight from the Tone.js docs
+    const chorus = new Tone.Chorus(4, 2.5, 0.5).toMaster();
+    const autoWah = new Tone.AutoWah(50, 6, -30).toMaster();
+    autoWah.Q.value = 10;
 
+    synth.current = new Tone.Synth(options);
+
+    if (useDist) synth.current.connect(dist);
+    if (useChorus) synth.current.connect(chorus);
+    if (useFreeverb) synth.current.connect(freeverb);
+    if (useJCRev) synth.current.connect(jcrev);
+    if (useAutoWah) synth.current.connect(autoWah);
+
+    synth.current.toMaster();
+    
+  }, [oscSelection, synthVolume, useDist, useChorus, useFreeverb, useJCRev, useAutoWah]);
+
+  // Continually initialize region data on startup until data is loaded
+  // FIXME: tacky solution to load the graph on app startup, is there a better way to do this?
   useEffect(() => {
     if (regionData.length > 0) return;
     initializeRegion(region);
@@ -142,7 +176,6 @@ function App() {
    * @param {string} selectedRegion region from dropdown component
    */
    function initializeRegion(selectedRegion) {
-    console.log('init region');
     setRegion(selectedRegion);
     initializeRegionData(selectedRegion);
   };
@@ -152,6 +185,7 @@ function App() {
    * @param {string} newRegion selected region from dropdown
    */
   function initializeRegionData(newRegion) {
+    // console.log('init region data');
     let selectedRegionData = [];
     let amounts = [];
 
@@ -220,7 +254,6 @@ function App() {
       setCurrentDate(entry.date);
       playbackData.push(regionData[entry.index]);
       setPlaybackData(playbackData);
-      console.log(playbackData)
 
       // Stop playback when finished
       if (pattern.index === pattern.values.length - 1) {
@@ -379,28 +412,51 @@ function App() {
       { /* Sonification parameters */}
       <h3>Options:</h3>
       
-      <Button variant="info" onClick={() => playMidiNote(pitch)}>Play test pitch</Button>
-      <br />
-      <br />
+      {/* React bootstrap slider */}
+      <Form >
+        <Form.Label>Synth Volume (in dB)</Form.Label>
+        <Form.Control type="range" defaultValue={mapData(minVolume, maxVolume, 0, 100, defaultVolume)} onChange={(event) => {
+          const newValue = event.target.value;  // dB
+          const newVolume = mapData(0, 100, minVolume, maxVolume, newValue);
+          setSynthVolume(newVolume);
+        }} />
+      </Form>
       
-      <PitchButtonGroup setPitch={setPitch} pitch={pitch} />
-      <p>The current MIDI pitch is: <strong>{pitch}</strong></p>
-      
-      <OscillatorToggleButton 
-        setOscSelection={setOscSelection}
-        oscSelection={oscSelection}
-        oscTypes={oscTypes}
-      />
-      <p>The current oscillator is: <strong>{oscTypes[oscSelection]}</strong></p>
+      <ButtonGroup>
+        <OscillatorDropdown 
+          setOscSelection={setOscSelection}
+          oscSelection={oscSelection}
+          oscTypes={oscTypes}
+        />
 
-      <Button
-        variant='primary'
-        onClick={() => {
-          setScale((scaleSelection + 1) % scales.length)
-        }}>
-          Toggle scale
-      </Button>
-      <p>Scale: <strong>{ scales[scaleSelection].name }</strong></p>
+        <ScaleDropdown
+          scales={scales}
+          scaleSelection={scaleSelection}
+          setScaleSelection={setScaleSelection}
+        />
+      </ButtonGroup>
+      <br />
+
+      <ButtonGroup>
+        <Button variant={useDist ? 'primary' : 'outline-primary'} onClick={() => setUseDist(!useDist)}>
+          Distortion: <b>{useDist ? 'enabled' : 'disabled'}</b>
+        </Button>
+        <Button variant={useChorus ? 'primary' : 'outline-primary'} onClick={() => setUseChorus(!useChorus)}>
+          Chorus: <b>{useChorus ? 'enabled' : 'disabled'}</b>
+        </Button>
+        <Button variant={useFreeverb ? 'primary' : 'outline-primary'} onClick={() => setUseFreeverb(!useFreeverb)}>
+          Freeverb: <b>{useFreeverb ? 'enabled' : 'disabled'}</b>
+        </Button>
+        <Button variant={useJCRev ? 'primary' : 'outline-primary'} onClick={() => setUseJCRev(!useJCRev)}>
+          JCReverb: <b>{useJCRev ? 'enabled' : 'disabled'}</b>
+        </Button>
+        <Button variant={useAutoWah ? 'primary' : 'outline-primary'} onClick={() => setUseAutoWah(!useAutoWah)}>
+          AutoWah: <b>{useAutoWah ? 'enabled' : 'disabled'}</b>
+        </Button>
+      </ButtonGroup>
+
+      <br />
+      <br />
 
       <MinMaxMidiInput
         handleInput={handleInput}
