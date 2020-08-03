@@ -21,12 +21,8 @@ import DataDropdown from './components/DataDropdownClass';
 import DataVisualization from './components/DataVisualization';
 import BpmInput from './components/BpmInput';
 import OscillatorDropdown from './components/OscillatorDropdown';
-import PitchButtonGroup from './components/PitchButtonGroup';
 import MinMaxMidiInput from './components/MinMaxMidiInput';
 import ScaleDropdown from './components/ScaleDropdown';
-
-// Default pitch
-const defaultPitch = 60;
 
 // Default BPM
 const defaultBpm = 999;
@@ -122,7 +118,6 @@ function App() {
 
 
   // Sonification state variables
-  const [pitch, setPitch] = useState(defaultPitch);
   const [synthVolume, setSynthVolume] = useState(-5);  // in dB
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
   const [minMidiPitch, setMinMidiPitch] = useState(defaultMinMidi);
@@ -421,13 +416,6 @@ function App() {
           setSynthVolume(newVolume);
         }} />
       </Form>
-      
-      <Button variant="info" onClick={() => playMidiNote(pitch)}>Play test pitch</Button>
-      <br />
-      <br />
-      
-      <PitchButtonGroup setPitch={setPitch} pitch={pitch} />
-      <p>The current MIDI pitch is: <strong>{pitch}</strong></p>
       
       <ButtonGroup>
         <OscillatorDropdown 
