@@ -116,7 +116,6 @@ function App() {
   const [currentDate, setCurrentDate] = useState('');
   const [playbackData, setPlaybackData] = useState([]);
 
-
   // Sonification state variables
   const [synthVolume, setSynthVolume] = useState(-5);  // in dB
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
@@ -129,6 +128,7 @@ function App() {
   const [useDist, setUseDist] = useState(false);
   const [useJCRev, setUseJCRev] = useState(false);
   const [useFreeverb, setUseFreeverb] = useState(false);
+  const [useAutoWah, setUseAutoWah] = useState(false);
 
   // Synth using React Hooks
   // https://github.com/Tonejs/Tone.js/wiki/Using-Tone.js-with-React-or-Vue
@@ -142,21 +142,26 @@ function App() {
       volume: synthVolume,
     }};
 
-    // TODO: add sliders for everything
+    // Effects
     const dist = new Tone.Distortion(1).toMaster();  // 0-1
     const jcrev = new Tone.JCReverb(0.5).toMaster();  // 0-1
     const freeverb = new Tone.Freeverb(0.75).toMaster();  // 0-1,freq
+    // These settings I'm taking straight from the Tone.js docs
     const chorus = new Tone.Chorus(4, 2.5, 0.5).toMaster();
+    const autoWah = new Tone.AutoWah(50, 6, -30).toMaster();
+    autoWah.Q.value = 10;
+
     synth.current = new Tone.Synth(options);
 
     if (useDist) synth.current.connect(dist);
     if (useChorus) synth.current.connect(chorus);
     if (useFreeverb) synth.current.connect(freeverb);
     if (useJCRev) synth.current.connect(jcrev);
+    if (useAutoWah) synth.current.connect(autoWah);
 
     synth.current.toMaster();
     
-  }, [oscSelection, synthVolume, useDist, useChorus, useFreeverb, useJCRev]);
+  }, [oscSelection, synthVolume, useDist, useChorus, useFreeverb, useJCRev, useAutoWah]);
 
   // Continually initialize region data on startup until data is loaded
   // FIXME: tacky solution to load the graph on app startup, is there a better way to do this?
@@ -433,17 +438,20 @@ function App() {
       <br />
 
       <ButtonGroup>
-        <Button onClick={() => setUseDist(!useDist)}>
+        <Button variant={useDist ? 'primary' : 'outline-primary'} onClick={() => setUseDist(!useDist)}>
           Distortion: <b>{useDist ? 'enabled' : 'disabled'}</b>
         </Button>
-        <Button onClick={() => setUseChorus(!useChorus)}>
+        <Button variant={useChorus ? 'primary' : 'outline-primary'} onClick={() => setUseChorus(!useChorus)}>
           Chorus: <b>{useChorus ? 'enabled' : 'disabled'}</b>
         </Button>
-        <Button onClick={() => setUseFreeverb(!useFreeverb)}>
+        <Button variant={useFreeverb ? 'primary' : 'outline-primary'} onClick={() => setUseFreeverb(!useFreeverb)}>
           Freeverb: <b>{useFreeverb ? 'enabled' : 'disabled'}</b>
         </Button>
-        <Button onClick={() => setUseJCRev(!useJCRev)}>
+        <Button variant={useJCRev ? 'primary' : 'outline-primary'} onClick={() => setUseJCRev(!useJCRev)}>
           JCReverb: <b>{useJCRev ? 'enabled' : 'disabled'}</b>
+        </Button>
+        <Button variant={useAutoWah ? 'primary' : 'outline-primary'} onClick={() => setUseAutoWah(!useAutoWah)}>
+          AutoWah: <b>{useAutoWah ? 'enabled' : 'disabled'}</b>
         </Button>
       </ButtonGroup>
 
