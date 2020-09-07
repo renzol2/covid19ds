@@ -2,15 +2,19 @@ import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { minPitchSet, maxPitchSet } from '../actions/MinMaxPitch';
 
 /**
  * Allows user to set the bounds of min/max MIDI values for sonification
- * 
- * @param {func} handleInput     function to handle numerical state change
- * @param {func} setMinMidiPitch function that sets min MIDI value state
- * @param {func} setMaxMidiPitch function that sets max MIDI value state
  */
-function MinMaxMidiInput({handleInput, setMinMidiPitch, setMaxMidiPitch}) {
+function MinMaxMidiInput({
+  minPitch,
+  maxPitch,
+  minPitchSet,
+  maxPitchSet
+}) {
   return (
     <div>
       {/* Min MIDI pitch input */}
@@ -18,12 +22,16 @@ function MinMaxMidiInput({handleInput, setMinMidiPitch, setMaxMidiPitch}) {
         <InputGroup.Prepend>
           <InputGroup.Text>Minimum MIDI pitch</InputGroup.Text>
         </InputGroup.Prepend>
-        <FormControl 
-          placeholder='Ex: 0'
-          aria-label='Minimum MIDI pitch'
-          onChange={
-            (event) => handleInput(event, setMinMidiPitch)
-          }
+        <FormControl
+          placeholder="Ex: 0"
+          aria-label="Minimum MIDI pitch"
+          onChange={(event) => {
+            let newPitch = parseInt(event.target.value);
+            if (isNaN(newPitch)) {
+              return;
+            }
+            minPitchSet(newPitch);
+          }}
         />
       </InputGroup>
 
@@ -33,21 +41,43 @@ function MinMaxMidiInput({handleInput, setMinMidiPitch, setMaxMidiPitch}) {
           <InputGroup.Text>Maximum MIDI pitch</InputGroup.Text>
         </InputGroup.Prepend>
         <FormControl
-          placeholder='Ex: 127'
-          aria-label='Maximum MIDI pitch'
-          onChange={
-            (event) => handleInput(event, setMaxMidiPitch)
-          }
+          placeholder="Ex: 127"
+          aria-label="Maximum MIDI pitch"
+          onChange={(event) => {
+            let newPitch = parseInt(event.target.value);
+            if (isNaN(newPitch)) {
+              return;
+            }
+            maxPitchSet(newPitch);
+          }}
         />
       </InputGroup>
+
+      <p>
+        Min/max MIDI pitch:{' '}
+        <strong>
+          [{minPitch}, {maxPitch}]
+        </strong>
+      </p>
     </div>
   );
 }
 
-MinMaxMidiInput.propTypes = {
-  handleInput: PropTypes.func.isRequired,
-  setMinMidiPitch: PropTypes.func.isRequired,
-  setMaxMidiPitch: PropTypes.func.isRequired,
+function mapStateToProps(state) {
+  return {
+    minPitch: state.minMaxPitch.minPitch,
+    maxPitch: state.minMaxPitch.maxPitch,
+  };
 }
 
-export default MinMaxMidiInput;
+function matchDispatchToProps(dispatch) {
+  return bindActionCreators(
+    {
+      minPitchSet: minPitchSet,
+      maxPitchSet: maxPitchSet,
+    },
+    dispatch
+  );
+}
+
+export default connect(mapStateToProps, matchDispatchToProps)(MinMaxMidiInput);

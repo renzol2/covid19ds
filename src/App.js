@@ -1,4 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
+import { connect } from 'react-redux';
 import './App.css';
 
 // Tone.js imports
@@ -26,10 +27,6 @@ import ScaleDropdown from './components/ScaleDropdown';
 
 // Default BPM
 const defaultBpm = 999;
-
-// Default MIDI parameters
-const defaultMinMidi = 36;
-const defaultMaxMidi = 96;
 
 // Default oscillator selection
 const defaultOscSelection = 'triangle';
@@ -102,7 +99,7 @@ const datasets = [
   }
 ];
 
-function App() {
+function App({ minMidiPitch, maxMidiPitch }) {
   // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = FetchOwidData(defaultUrl);
   const [dataset, setDataset] = useState(defaultUrl);
@@ -119,8 +116,6 @@ function App() {
   // Sonification state variables
   const [synthVolume, setSynthVolume] = useState(-5);  // in dB
   const [oscSelection, setOscSelection] = useState(defaultOscSelection);
-  const [minMidiPitch, setMinMidiPitch] = useState(defaultMinMidi);
-  const [maxMidiPitch, setMaxMidiPitch] = useState(defaultMaxMidi);
   const [bpm, setBpm] = useState(defaultBpm);
   const [scaleSelection, setScaleSelection] = useState(defaultScaleSelection);
   const [inPlayback, setInPlayback] = useState(false);
@@ -458,14 +453,7 @@ function App() {
       <br />
       <br />
 
-      <MinMaxMidiInput
-        handleInput={handleInput}
-        setMinMidiPitch={setMinMidiPitch}
-        setMaxMidiPitch={setMaxMidiPitch}
-      />
-      <p>
-        Min/max MIDI pitch: <strong>[{minMidiPitch}, {maxMidiPitch}]</strong>
-      </p>
+      <MinMaxMidiInput />
 
       {/* BPM input */}
       <BpmInput bpm={bpm} setBpm={setBpm} handleInput={handleInput} />
@@ -474,4 +462,11 @@ function App() {
   )
 }
 
-export default App;
+function mapStateToProps(state) {
+  return {
+    minMidiPitch: state.minMaxPitch.minPitch,
+    maxMidiPitch: state.minMaxPitch.maxPitch
+  };
+}
+
+export default connect(mapStateToProps)(App);
