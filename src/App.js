@@ -31,9 +31,21 @@ import { DEFAULT_DATASET, DATASETS } from './constants/Datasets';
 import { DEFAULT_VOLUME, MIN_VOLUME, MAX_VOLUME } from './constants/Volume';
 import { DEFAULT_OSCILLATOR, OSCILLATORS } from './constants/Oscillators';
 
+// Actions
+import { bindActionCreators } from 'redux';
+import { visualizationToggle, animationToggle } from './actions/Visualization';
+
 const defaultRegion = 'World';
 
-function App({ minMidiPitch, maxMidiPitch, bpm }) {
+function App({
+  minMidiPitch,
+  maxMidiPitch,
+  bpm,
+  showVisualization,
+  showAnimation,
+  visualizationToggle,
+  animationToggle
+}) {
   // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = FetchOwidData(
     DEFAULT_DATASET.url
@@ -43,8 +55,6 @@ function App({ minMidiPitch, maxMidiPitch, bpm }) {
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
   const [maxAmount, setMaxAmount] = useState(0);
-  const [displayViz, setVisualize] = useState(true);
-  const [doAnimation, setAnimation] = useState(false);
   const [currentAmt, setCurrentAmt] = useState(Number.MAX_SAFE_INTEGER);
   const [currentDate, setCurrentDate] = useState('');
   const [playbackData, setPlaybackData] = useState([]);
@@ -283,12 +293,12 @@ function App({ minMidiPitch, maxMidiPitch, bpm }) {
           waitTime={600}
         />
 
-        <Button onClick={() => setVisualize(!displayViz)}>
-          {`Visualization: ${displayViz ? 'on' : 'off'}`}
+        <Button onClick={() => visualizationToggle()}>
+          {`Visualization: ${showVisualization ? 'on' : 'off'}`}
         </Button>
 
-        <Button onClick={() => setAnimation(!doAnimation)}>
-          {`Animation: ${doAnimation ? 'on' : 'off'}`}
+        <Button onClick={() => animationToggle()}>
+          {`Animation: ${showAnimation ? 'on' : 'off'}`}
         </Button>
       </ButtonGroup>
 
@@ -320,9 +330,9 @@ function App({ minMidiPitch, maxMidiPitch, bpm }) {
 
       {/* Data visualization */}
       <div className="dataViz">
-        {displayViz && (
+        {showVisualization && (
           <DataVisualization
-            animate={doAnimation}
+            animate={showAnimation}
             axisLeft={{
               legend: DATASETS.find((d) => d.url === dataset).title,
               legendOffset: 10,
@@ -434,7 +444,19 @@ function mapStateToProps(state) {
     minMidiPitch: state.minMaxPitch.minPitch,
     maxMidiPitch: state.minMaxPitch.maxPitch,
     bpm: state.bpm.playbackBpm,
+    showVisualization: state.visualization.visible,
+    showAnimation: state.visualization.animation,
   };
 }
 
-export default connect(mapStateToProps)(App);
+function matchDispatchToProps(dispatch) {
+  return bindActionCreators(
+    {
+      visualizationToggle,
+      animationToggle,
+    },
+    dispatch
+  );
+}
+
+export default connect(mapStateToProps, matchDispatchToProps)(App);
