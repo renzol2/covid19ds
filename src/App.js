@@ -25,78 +25,20 @@ import OscillatorDropdown from './components/OscillatorDropdown';
 import MinMaxMidiInput from './components/MinMaxMidiInput';
 import ScaleDropdown from './components/ScaleDropdown';
 
-// Default oscillator selection
-const defaultOscSelection = 'triangle';
+// Constants
+import { DEFAULT_SCALE_SELECTION, SCALES } from './constants/Scales';
+import { DEFAULT_DATASET, DATASETS } from './constants/Datasets';
+import { DEFAULT_VOLUME, MIN_VOLUME, MAX_VOLUME } from './constants/Volume';
+import { DEFAULT_OSCILLATOR, OSCILLATORS } from './constants/Oscillators';
 
 const defaultRegion = 'World';
-const defaultVolume = -5; // in dB
-const minVolume = -30;
-const maxVolume = 0;
-
-// All oscillator types
-const oscTypes = ['sine', 'triangle', 'square', 'sawtooth'];
-
-// Scales
-const scales = {
-  chromatic: {
-    key: 'chromatic',
-    name: 'Chromatic',
-    scale: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-  },
-  major: {
-    key: 'major',
-    name: 'Major',
-    scale: [0, 2, 4, 5, 7, 9, 11],
-  },
-  minor: {
-    key: 'minor',
-    name: 'Minor',
-    scale: [0, 2, 3, 5, 7, 8, 10],
-  },
-  pentatonic: {
-    key: 'pentatonic',
-    name: 'Pentatonic',
-    scale: [0, 2, 4, 7, 9],
-  },
-  wholeTone: {
-    key: 'wholeTone',
-    name: 'Whole tone',
-    scale: [0, 2, 4, 6, 8, 10],
-  },
-};
-
-// Default scale selection
-const defaultScaleSelection = 'chromatic';
-
-// URL to fetch data
-const defaultUrl = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv';
-
-// All data
-const datasets = [
-  {
-    title: 'Total cases',
-    url: 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv',
-  },
-  {
-    title: 'Total deaths',
-    url: 'https://covid.ourworldindata.org/data/ecdc/total_deaths.csv',
-  },
-  {
-    title: 'New cases',
-    url: 'https://covid.ourworldindata.org/data/ecdc/new_cases.csv',
-  },
-  {
-    title: 'New deaths',
-    url: 'https://covid.ourworldindata.org/data/ecdc/new_deaths.csv',
-  },
-];
 
 function App({ minMidiPitch, maxMidiPitch, bpm }) {
   // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = FetchOwidData(
-    defaultUrl
+    DEFAULT_DATASET.url
   );
-  const [dataset, setDataset] = useState(defaultUrl);
+  const [dataset, setDataset] = useState(DEFAULT_DATASET.url);
   const [region, setRegion] = useState(defaultRegion);
   const [regionData, setRegionData] = useState([]);
   const [minAmount, setMinAmount] = useState(0);
@@ -108,9 +50,9 @@ function App({ minMidiPitch, maxMidiPitch, bpm }) {
   const [playbackData, setPlaybackData] = useState([]);
 
   // Sonification state variables
-  const [synthVolume, setSynthVolume] = useState(-5); // in dB
-  const [oscSelection, setOscSelection] = useState(defaultOscSelection);
-  const [scaleSelection, setScaleSelection] = useState(defaultScaleSelection);
+  const [synthVolume, setSynthVolume] = useState(DEFAULT_VOLUME); // in dB
+  const [oscSelection, setOscSelection] = useState(DEFAULT_OSCILLATOR);
+  const [scaleSelection, setScaleSelection] = useState(DEFAULT_SCALE_SELECTION);
   const [inPlayback, setInPlayback] = useState(false);
   const [useChorus, setUseChorus] = useState(false);
   const [useDist, setUseDist] = useState(false);
@@ -243,7 +185,7 @@ function App({ minMidiPitch, maxMidiPitch, bpm }) {
     // Quantize notes according to scale (can't do this within convertEntryToMidi for some reason...)
     const quantizedNotes = notes.map((entry) => ({
       ...entry,
-      note: quantizeNote(entry.note, scales[scaleSelection].scale),
+      note: quantizeNote(entry.note, SCALES[scaleSelection].scale),
     }));
 
     // Set up pattern to play data
@@ -331,9 +273,9 @@ function App({ minMidiPitch, maxMidiPitch, bpm }) {
 
         <DataDropdown
           currentDatasetName={
-            datasets.find((dset) => dset.url === dataset).title
+            DATASETS.find((dset) => dset.url === dataset).title
           }
-          datasets={datasets}
+          datasets={DATASETS}
           setDataset={setDataset}
           fetchData={fetchData}
           region={region}
@@ -382,7 +324,7 @@ function App({ minMidiPitch, maxMidiPitch, bpm }) {
           <DataVisualization
             animate={doAnimation}
             axisLeft={{
-              legend: datasets.find((d) => d.url === dataset).title,
+              legend: DATASETS.find((d) => d.url === dataset).title,
               legendOffset: 10,
               format: '.2s',
             }}
@@ -399,7 +341,7 @@ function App({ minMidiPitch, maxMidiPitch, bpm }) {
               playMidiNote(
                 quantizeNote(
                   convertEntryToMidi(point.data.y),
-                  scales[scaleSelection].scale
+                  SCALES[scaleSelection].scale
                 )
               );
             }}
@@ -421,10 +363,10 @@ function App({ minMidiPitch, maxMidiPitch, bpm }) {
         <Form.Label>Synth Volume (in dB)</Form.Label>
         <Form.Control
           type="range"
-          defaultValue={mapData(minVolume, maxVolume, 0, 100, defaultVolume)}
+          defaultValue={mapData(MIN_VOLUME, MAX_VOLUME, 0, 100, DEFAULT_VOLUME)}
           onChange={(event) => {
             const newValue = event.target.value; // dB
-            const newVolume = mapData(0, 100, minVolume, maxVolume, newValue);
+            const newVolume = mapData(0, 100, MIN_VOLUME, MAX_VOLUME, newValue);
             setSynthVolume(newVolume);
           }}
         />
@@ -434,11 +376,11 @@ function App({ minMidiPitch, maxMidiPitch, bpm }) {
         <OscillatorDropdown
           setOscSelection={setOscSelection}
           oscSelection={oscSelection}
-          oscTypes={oscTypes}
+          oscTypes={OSCILLATORS}
         />
 
         <ScaleDropdown
-          scales={scales}
+          scales={SCALES}
           scaleSelection={scaleSelection}
           setScaleSelection={setScaleSelection}
         />
