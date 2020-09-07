@@ -1,16 +1,14 @@
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
-import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { bpmSet } from '../actions/Bpm';
 
 /**
  * Allows user to change sonification playback BPM
- * 
- * @param {number} bpm         BPM state of application to be displayed
- * @param {func}   handleInput function that handles numerical state change
- * @param {func}   setBpm      function that sets BPM state of application
  */
-function BpmInput({bpm, setBpm, handleInput}) {
+function BpmInput({ bpm, bpmSet }) {
   return (
     <div>
       <InputGroup>
@@ -18,27 +16,37 @@ function BpmInput({bpm, setBpm, handleInput}) {
           <InputGroup.Text>Playback BPM</InputGroup.Text>
         </InputGroup.Prepend>
         <FormControl
-          placeholder='Ex: 200'
-          aria-label='BPM'
-          onChange={
-            (event) => handleInput(
-              event, setBpm
-            )
-          }
+          placeholder="Ex: 200"
+          aria-label="BPM"
+          onChange={(event) => {
+            let newBpm = parseInt(event.target.value);
+            if (isNaN(newBpm)) {
+              return;
+            }
+            bpmSet(newBpm);
+          }}
         />
       </InputGroup>
       <p>
         Current BPM: <strong>{bpm}</strong>
       </p>
     </div>
-  )
+  );
 }
 
-
-BpmInput.propTypes = {
-  handleInput: PropTypes.func.isRequired,
-  setBpm: PropTypes.func.isRequired,
-  bpm: PropTypes.number.isRequired,
+function mapStateToProps(state) {
+  return {
+    bpm: state.bpm.playbackBpm,
+  };
 }
 
-export default BpmInput;
+function matchDispatchToProps(dispatch) {
+  return bindActionCreators(
+    {
+      bpmSet,
+    },
+    dispatch
+  );
+}
+
+export default connect(mapStateToProps, matchDispatchToProps)(BpmInput);

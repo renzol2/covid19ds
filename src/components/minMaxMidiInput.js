@@ -1,7 +1,6 @@
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
-import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { minPitchSet, maxPitchSet } from '../actions/MinMaxPitch';
@@ -9,12 +8,7 @@ import { minPitchSet, maxPitchSet } from '../actions/MinMaxPitch';
 /**
  * Allows user to set the bounds of min/max MIDI values for sonification
  */
-function MinMaxMidiInput({
-  minPitch,
-  maxPitch,
-  minPitchSet,
-  maxPitchSet
-}) {
+function MinMaxMidiInput({ minPitch, maxPitch, minPitchSet, maxPitchSet }) {
   return (
     <div>
       {/* Min MIDI pitch input */}
