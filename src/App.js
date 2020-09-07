@@ -24,6 +24,7 @@ import BpmInput from './components/BpmInput';
 import OscillatorDropdown from './components/OscillatorDropdown';
 import MinMaxMidiInput from './components/MinMaxMidiInput';
 import ScaleDropdown from './components/ScaleDropdown';
+import EffectsOptions from './components/EffectsOptions';
 
 // Constants
 import { DEFAULT_SCALE_SELECTION, SCALES } from './constants/Scales';
@@ -43,8 +44,9 @@ function App({
   bpm,
   showVisualization,
   showAnimation,
+  synthSettings,
   visualizationToggle,
-  animationToggle
+  animationToggle,
 }) {
   // Data state variables
   const [{ data, regions, isLoading, isError }, fetchData] = FetchOwidData(
@@ -64,11 +66,6 @@ function App({
   const [oscSelection, setOscSelection] = useState(DEFAULT_OSCILLATOR);
   const [scaleSelection, setScaleSelection] = useState(DEFAULT_SCALE_SELECTION);
   const [inPlayback, setInPlayback] = useState(false);
-  const [useChorus, setUseChorus] = useState(false);
-  const [useDist, setUseDist] = useState(false);
-  const [useJCRev, setUseJCRev] = useState(false);
-  const [useFreeverb, setUseFreeverb] = useState(false);
-  const [useAutoWah, setUseAutoWah] = useState(false);
 
   // Synth using React Hooks
   // https://github.com/Tonejs/Tone.js/wiki/Using-Tone.js-with-React-or-Vue
@@ -95,22 +92,16 @@ function App({
 
     synth.current = new Tone.Synth(options);
 
-    if (useDist) synth.current.connect(dist);
+    const { useChorus, useDistortion, useJcreverb, useFreeverb, useAutowah } = synthSettings;
+
     if (useChorus) synth.current.connect(chorus);
+    if (useDistortion) synth.current.connect(dist);
+    if (useJcreverb) synth.current.connect(jcrev);
     if (useFreeverb) synth.current.connect(freeverb);
-    if (useJCRev) synth.current.connect(jcrev);
-    if (useAutoWah) synth.current.connect(autoWah);
+    if (useAutowah) synth.current.connect(autoWah);
 
     synth.current.toMaster();
-  }, [
-    oscSelection,
-    synthVolume,
-    useDist,
-    useChorus,
-    useFreeverb,
-    useJCRev,
-    useAutoWah,
-  ]);
+  }, [oscSelection, synthVolume, synthSettings]);
 
   // Continually initialize region data on startup until data is loaded
   // FIXME: tacky solution to load the graph on app startup, is there a better way to do this?
@@ -397,38 +388,7 @@ function App({
       </ButtonGroup>
       <br />
 
-      <ButtonGroup>
-        <Button
-          variant={useDist ? 'primary' : 'outline-primary'}
-          onClick={() => setUseDist(!useDist)}
-        >
-          Distortion: <b>{useDist ? 'enabled' : 'disabled'}</b>
-        </Button>
-        <Button
-          variant={useChorus ? 'primary' : 'outline-primary'}
-          onClick={() => setUseChorus(!useChorus)}
-        >
-          Chorus: <b>{useChorus ? 'enabled' : 'disabled'}</b>
-        </Button>
-        <Button
-          variant={useFreeverb ? 'primary' : 'outline-primary'}
-          onClick={() => setUseFreeverb(!useFreeverb)}
-        >
-          Freeverb: <b>{useFreeverb ? 'enabled' : 'disabled'}</b>
-        </Button>
-        <Button
-          variant={useJCRev ? 'primary' : 'outline-primary'}
-          onClick={() => setUseJCRev(!useJCRev)}
-        >
-          JCReverb: <b>{useJCRev ? 'enabled' : 'disabled'}</b>
-        </Button>
-        <Button
-          variant={useAutoWah ? 'primary' : 'outline-primary'}
-          onClick={() => setUseAutoWah(!useAutoWah)}
-        >
-          AutoWah: <b>{useAutoWah ? 'enabled' : 'disabled'}</b>
-        </Button>
-      </ButtonGroup>
+      <EffectsOptions />
 
       <br />
       <br />
@@ -446,6 +406,7 @@ function mapStateToProps(state) {
     bpm: state.bpm.playbackBpm,
     showVisualization: state.visualization.visible,
     showAnimation: state.visualization.animation,
+    synthSettings: state.synth,
   };
 }
 
